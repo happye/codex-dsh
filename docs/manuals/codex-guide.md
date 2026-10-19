@@ -2,14 +2,16 @@
 
 先定位工具仓库绝对路径、用户目标项目和统一的绝对状态目录。保持当前原生 Codex 对话作为主控；不增加模型代理或绕过原生 Harness。按项目权限完成规划、验收和阶段汇报。
 
-先读个人Skill目录的local-settings.json（若存在），字段toolRoot/stateDir/connection/url用于跨工作区复用定位。已配置时不再要求用户重复提供stateDir；连接凭证不在该文件，不能因此认定首次attach已成功。仅解析私有账本的非敏感连接元数据，不完整打印state.json。测试fixture里的连接不可当作正式连接复用。
+先读个人Skill目录的local-settings.json（由setup生成），字段toolRoot/stateDir/connection/url用于跨工作区定位。CLI自动沿用配置；可用connections列出非秘密元数据，不能完整打印state.json。缺少首次鉴权时运行setup，不能把Skill已安装或配置已存在当作已认证。测试fixture里的连接不可当正式连接复用。不要让用户手写配置JSON或在每个项目重新提供同一stateDir。
 
 ## 命令合同
 
-在工具仓库使用 node bin/codex-dsh.mjs，或从其他目录用 bin 文件的绝对路径调用。所有命令加相同 --state-dir ABSOLUTE。完整参数以 --help 为准。
+在工具仓库使用node bin/codex-dsh.mjs，或通过配置toolRoot定位bin，或用已安装的codex-dsh。setup后自动复用个人stateDir；显式--state-dir优先，用于旧任务或隔离测试。无配置时保留旧版当前目录.codex-dsh的兼容行为。完整参数以--help为准。
 
 | 命令 | 用途 |
 | --- | --- |
+| setup --url URL [--name native] [--token-stdin 或 --token-file FILE] | 安装原样个人Skill，自动生成非秘密定位配置和私有账本；首次鉴权或更新失效凭证 |
+| connections | 列出连接名、Host及任务定位元数据；不输出cookie，不等于Host在线检查 |
 | attach --name NAME --url URL --token-stdin | 读取一行本地令牌，附加现有原生 Host |
 | start --connection NAME --cwd ABSOLUTE --task ID | 创建原生任务会话；可选 --title TITLE |
 | start ... --session SESSION_ID | 附加已有会话，按 shared 处理停止 |

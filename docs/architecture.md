@@ -2,6 +2,12 @@
 
 控制器负责通信和请求状态，当前 Codex 对话负责决策，原生 DSH 负责实际模型执行。三者保留各自职责。
 
+## 安装与本机配置
+
+0.1.1提供setup入口，从当前安装位置自动确定toolRoot，将通用Skill原样复制到个人Codex目录，并生成独立local-settings.json。公开仓库与个人SKILL.md保持字节一致；只有自动生成的配置含本机绝对路径，凭证保存在私有StateStore。setup不启动模型轮次或重建DSH配置。
+
+CLI状态目录按显式参数、个人配置、旧版cwd/.codex-dsh依次选择。配置存在但无效时报错，不能悄悄换新目录。connections只列允许的元数据，不输出cookie/提示正文；存在记录不是在线鉴权证明。真正发送仍由原生Host验证cookie。个人配置被搬到另一台电脑时需重新setup，不携带旧凭证作为通用安装资产。
+
 ```mermaid
 flowchart TD
   U[用户：目标与验收标准] --> C[原生 Codex 对话：规划与验收]

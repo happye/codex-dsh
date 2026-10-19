@@ -1,17 +1,71 @@
 {
-  "date": "2026-10-19",
+  "date": "2026-10-20",
+  "version": "0.1.1",
   "kind": "LOCAL_MOCK",
   "realProviderRequests": 0,
   "localProtocolTests": {
-    "passed": 27,
+    "passed": 36,
     "failed": 0,
-    "command": "npm test"
+    "command": "npm test",
+    "setupTests": 9
   },
   "native": {
     "installedBuilt": {
       "executionMode": "INSTALLED_BUILT",
       "status": "PARTIAL_LOCAL_MOCK_NATIVE_APPROVAL_BLOCKED",
       "checks": [
+        {
+          "name": "setup authenticates native Host in isolated CODEX_HOME",
+          "passed": true
+        },
+        {
+          "name": "setup selects personal shared state inside fixture",
+          "passed": true
+        },
+        {
+          "name": "setup installs unchanged portable Skill body",
+          "passed": true
+        },
+        {
+          "name": "generated local settings locate tool and shared ledger",
+          "passed": true
+        },
+        {
+          "name": "generated local settings exclude native token and cookie",
+          "passed": true
+        },
+        {
+          "name": "another working directory discovers setup connection without state flag",
+          "passed": true
+        },
+        {
+          "name": "profile start creates native session without explicit state directory",
+          "passed": true
+        },
+        {
+          "name": "profile send from different directory completes native turn",
+          "passed": true
+        },
+        {
+          "name": "profile status recovers same session and request from original directory",
+          "passed": true
+        },
+        {
+          "name": "profile reply remains available in shared ledger",
+          "passed": true
+        },
+        {
+          "name": "repeated setup preserves existing native request ledger",
+          "passed": true
+        },
+        {
+          "name": "connections exposes existing task locator across projects",
+          "passed": true
+        },
+        {
+          "name": "cross-directory profile use never creates cwd fallback ledgers",
+          "passed": true
+        },
         {
           "name": "product attach authenticates full native Host",
           "passed": true
@@ -83,6 +137,10 @@
         {
           "name": "every completed request retains native turn association",
           "passed": true
+        },
+        {
+          "name": "explicit state-directory scenario preserves separate personal ledger",
+          "passed": true
         }
       ],
       "nativeApproval": {
@@ -103,7 +161,7 @@
         }
       },
       "selectedNativeFilesUnchanged": true,
-      "mockRequests": 7,
+      "mockRequests": 8,
       "cleanup": {
         "jobActiveAfterCleanup": 0,
         "hostPortReleased": true,
@@ -116,6 +174,58 @@
       "executionMode": "SOURCE_FIXTURE",
       "status": "PASS_LOCAL_MOCK_PRODUCT_NATIVE_E2E",
       "checks": [
+        {
+          "name": "setup authenticates native Host in isolated CODEX_HOME",
+          "passed": true
+        },
+        {
+          "name": "setup selects personal shared state inside fixture",
+          "passed": true
+        },
+        {
+          "name": "setup installs unchanged portable Skill body",
+          "passed": true
+        },
+        {
+          "name": "generated local settings locate tool and shared ledger",
+          "passed": true
+        },
+        {
+          "name": "generated local settings exclude native token and cookie",
+          "passed": true
+        },
+        {
+          "name": "another working directory discovers setup connection without state flag",
+          "passed": true
+        },
+        {
+          "name": "profile start creates native session without explicit state directory",
+          "passed": true
+        },
+        {
+          "name": "profile send from different directory completes native turn",
+          "passed": true
+        },
+        {
+          "name": "profile status recovers same session and request from original directory",
+          "passed": true
+        },
+        {
+          "name": "profile reply remains available in shared ledger",
+          "passed": true
+        },
+        {
+          "name": "repeated setup preserves existing native request ledger",
+          "passed": true
+        },
+        {
+          "name": "connections exposes existing task locator across projects",
+          "passed": true
+        },
+        {
+          "name": "cross-directory profile use never creates cwd fallback ledgers",
+          "passed": true
+        },
         {
           "name": "product attach authenticates full native Host",
           "passed": true
@@ -211,6 +321,10 @@
         {
           "name": "every completed request retains native turn association",
           "passed": true
+        },
+        {
+          "name": "explicit state-directory scenario preserves separate personal ledger",
+          "passed": true
         }
       ],
       "nativeApproval": {
@@ -282,7 +396,7 @@
           "sha256": "ce6563ebda904388a15e1f53df701fcec39c15b44496ae7510ed92ebef8d1331"
         }
       ],
-      "mockRequests": 11,
+      "mockRequests": 12,
       "cleanup": {
         "jobActiveAfterCleanup": 0,
         "hostPortReleased": true,
@@ -292,16 +406,37 @@
       }
     }
   },
+  "portableInstallation": {
+    "packageVersion": "0.1.1",
+    "packageFileCount": 19,
+    "packedInstallWithSpaces": "PASS",
+    "crossProjectConnectionReuse": "PASS",
+    "repositoryAndPersonalSkillBytesIdentical": true,
+    "repositoryAndPersonalAgentMetadataIdentical": true,
+    "existingPersonalLedgerPreserved": true,
+    "runtimeFilesExcludedFromPackage": true,
+    "secretsExcludedFromLocatorProfile": true,
+    "withoutTokenSetupDoesNotClaimAuthentication": true
+  },
+  "cleanReleaseReproduction": {
+    "source": "Only release allowlist files exported from Git index; isolated CODEX_HOME; no private research/cache files",
+    "dependencyInstall": "npm ci --offline --ignore-scripts: PASS",
+    "localTests": "36 PASS",
+    "cliHelp": "PASS",
+    "bothNativeModes": "Reproduced portable setup, callerA/B without state-dir, native tools and task recovery; Job0 and both ports released"
+  },
   "limits": [
     "Installed build bypasses native approval and sandbox escalation; its approval path is not verified.",
     "SOURCE_FIXTURE loads two native packages from installed TypeScript source; it is not the unchanged installed build.",
+    "Stored authentication is not a live Host authentication check.",
     "No real model semantics, maximum context/output, cost/cache parity, visual UI parity or universal descendant stop claim."
   ],
   "productFilesSha256": {
-    "src/cli.mjs": "101a8a3ab77b4ed3e663e0568c6a76e01cb8156d4fbfcac0e4aa1c125ed534a2",
+    "src/cli.mjs": "a011996ee16466a922204a355eb69a20953162c48f396c6604389c8b9105d5f6",
     "src/controller.mjs": "c7dfec045f743360939aa2819c6edd6e81c5aaf52b7150b83cc37d2c6f622745",
     "src/events.mjs": "3ff8b0d8382952edb1787a84ad61725f99f7177f0b87a8eb335c853ff9b81f43",
     "src/native.mjs": "9e0eab4c1b0eb68b96d7f5a2d581d2ce935534d10994eb8f9972ab4ec7ef677a",
+    "src/setup.mjs": "f8bb0db9fa01d1405250127d1054c5b2d6dcfd82d68b4e72422290dd9190af5a",
     "src/store.mjs": "b0a0357b80c89ab7f67935e6d6e0ae3e379e028317b4873c185e2d884baa8a7c",
     "bin/codex-dsh.mjs": "c2ccf60dc3ba96bb9fad85d06c4bd085718a854591fce8684cde7becd3b05059",
     "test/controller.test.mjs": "8687fb9745db52dfac9dd46df07f31010616ab8bb02340e41fffba8dd7c67ef2",
@@ -310,25 +445,10 @@
     "test/helpers/loopback-only.cjs": "383e79e5e13b88b25ea837ef82d45f2b7dcfe0a41019e6c06373295c8433e42e",
     "test/helpers/native_fixture.py": "529cc01adb809bf09c3f51fada45c33f8a51c61cd393a9d8fef2e71a086483fc",
     "test/helpers/windows_job.py": "92186d3cb465eff95544899ad832c14657986e62c83100f675c83d4ec7eb9d1e",
-    "test/native/controller.test.mjs": "920e071204024e9054ca0dc533a7c5a9830b2f42c91d48ddcbd6b94d01c35457",
+    "test/native/controller.test.mjs": "f0dcc62862fcc78e8e384afd91dd73adf6ef537e28896c808f49ea35a7d34245",
     "test/native-transport.test.mjs": "e210f8f92fd088acfdaf087efc8b80a8bae49d6c36565396e1bab611bb856b46",
+    "test/setup.test.mjs": "8652d4c6b57887ece16f9de560be4b2746efdb3d54af74f2cf5f662b3472447a",
     "test/store.test.mjs": "3d0e080a6324fe28fcbc764097a7531c8145bd50063ffe2b05638998b731d558"
   },
-  "cleanReleaseReproduction": {
-    "source": "Only release allowlist files exported from Git index; no private research/cache files",
-    "dependencyInstall": "npm ci --offline --ignore-scripts: PASS",
-    "localTests": "27 PASS",
-    "cliHelp": "PASS",
-    "installedNative": {
-      "checks": 18,
-      "mockRequests": 7,
-      "status": "PARTIAL_LOCAL_MOCK_NATIVE_APPROVAL_BLOCKED"
-    },
-    "sourceFixture": {
-      "checks": 24,
-      "mockRequests": 11,
-      "status": "PASS_LOCAL_MOCK_PRODUCT_NATIVE_E2E"
-    },
-    "bothModesCleanup": "Job active 0, both ports released, selected native hashes unchanged"
-  }
+  "skillSha256": "bff68204f6182c38bdb4686ce656f808d8dd4be174df363c83b75c6d6baed281"
 }

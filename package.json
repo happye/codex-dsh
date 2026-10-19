@@ -1,6 +1,6 @@
 {
   "name": "codex-dsh",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Thin native DeepSeek Harness control plane for Codex-led collaboration",
   "type": "module",
   "license": "UNLICENSED",
@@ -13,5 +13,5 @@
     "check": "node bin/codex-dsh.mjs --help"
   },
   "dependencies": { "ws": "8.21.0" },
-  "files": ["bin/", "src/", "docs/manuals/", "docs/architecture.md", "docs/architecture.mmd", "docs/validation.md", "docs/validation-results.json", ".agents/skills/codex-dsh-collab/", "README.md", "AGENTS.md", "CODEX.md"]
+  "files": ["bin/", "src/", "docs/manuals/", "docs/architecture.md", "docs/architecture.mmd", "docs/validation.md", "docs/validation-results.json", ".agents/skills/codex-dsh-collab/SKILL.md", ".agents/skills/codex-dsh-collab/agents/openai.yaml", "README.md", "AGENTS.md", "CODEX.md"]
 }

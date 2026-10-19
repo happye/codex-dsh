@@ -8,9 +8,9 @@
 
 > 使用 $codex-dsh-collab，连接我的原生 DSH，为【项目绝对路径】完成【目标】，验收标准是【标准】，自主发送、跟随和追修，每阶段汇报，直到完成或我说停止。
 
-首次提供 Host 地址和项目目标。令牌只在本地标准输入中交给 attach，不要粘贴进聊天。Codex 需要本机执行能力、原生 Host 网络访问及模型任务授权。工具安装和实际命令见 [README](../../README.md)。
+首次提供 Host 地址和项目目标。按 [README](../../README.md)运行 setup，它自动安装个人Skill并建立共享连接定位。令牌只通过本地标准输入或token-file提供，不粘贴进聊天。Codex需要本机执行能力、原生Host网络访问及模型任务授权。
 
-Skill 位于仓库 .agents/skills/codex-dsh-collab；在本仓库中可被发现。跨项目使用时，可让 Codex 直接读取该 SKILL.md 的绝对路径，或将该 Skill 文件夹安装到自己的 Codex skills 目录。不要只复制一句提示词而省略工具仓库路径、Host 连接和状态目录。手动安装到其他位置时，告诉 Codex 工具仓库的绝对路径，供它找到 CLI 与手册。
+setup会将仓库 .agents/skills/codex-dsh-collab 的通用Skill原样安装到个人目录，供其他项目会话发现；路径自动记录在该目录的local-settings.json，无需手动修改Skill。新会话读取个人Skill和配置即可定位工具；已有会话若尚未刷新技能列表，可显式读取个人Skill文件。不同电脑分别setup一次，不复制另一台的cookie或绝对路径。
 
 ## 日常表达
 
@@ -23,7 +23,7 @@ Codex 负责规划和验收，DSH 执行原生任务；正常循环无需你逐�
 
 ## 状态和控制权
 
-跨项目应复用同一连接账本。在个人Skill目录创建不含秘密的 `local-settings.json`，填写工具仓库绝对路径toolRoot、共享账本绝对路径stateDir、连接名connection及Host地址url；Skill会先读取它。工作区Skill副本也会查个人配置。首次attach成功后即可跨项目复用，除非Host更换凭证或连接失效。Skill安装本身不等于已经完成首次鉴权；找不到首次令牌时，请在本地安全提供，不应猜测或绕过认证。
+跨项目复用setup自动生成的local-settings.json和账本；字段toolRoot、stateDir、connection、url是本机定位元数据，不含秘密。工作区Skill副本也会查个人配置，CLI自动读取同一配置。显式--state-dir可继续旧账本，不能换目录后盲目重建相同任务。首次认证成功后复用连接，Host更换凭证时再次setup；无令牌setup只初始化本地，不保证已鉴权。
 
 完整答复保存在私有状态目录的 reply 文件，命令返回 resultFile。Codex 应读答复并检查真实文件和测试结果，不能只凭“完成”文字接收成果。
 
@@ -45,7 +45,7 @@ COMPLETED 是一个原生轮次完成。SUBMISSION_UNKNOWN 是是否接收不明
 
 ## 故障处理和数据
 
-断线后让 Codex 在同一状态目录执行 resume / follow；它会读原生历史协调，不自动重发。鉴权失效先重新 attach。CREATE_UNKNOWN 或 SUBMISSION_UNKNOWN 应核对原生会话/文件，避免重复副作用；工具不会猜测任务从未执行。
+断线后让Codex在同一状态目录执行resume / follow；它会读原生历史协调，不自动重发。鉴权失效重新setup，保留原账本；高级用法仍可attach。配置错误应修复配置，不得静默回退新目录。CREATE_UNKNOWN或SUBMISSION_UNKNOWN应核对原生会话/文件，避免重复副作用；工具不会猜测任务从未执行。
 
 私有状态含 cookie、提示及答复，默认 .codex-dsh 已加入本仓库忽略规则；在其他项目使用时也应忽略选定目录。目录不提供 OS 沙箱。锁冲突时先确认原进程确已退出，不能靠删锁让两个控制器同时写。保留状态有助于恢复；删除状态会丢失关联。
 

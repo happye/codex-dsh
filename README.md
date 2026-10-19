@@ -2,7 +2,7 @@
 
 让当前 Codex 对话通过原生接口发送任务、接收结果、检查状态，再安排下一轮。DSH 继续使用完整原生 Harness；控制器不提供模型代理、不重新实现工具执行器。
 
-版本：0.1.0，薄原生控制层。[验证范围](docs/validation.md)单独记录。
+版本：0.1.1，提供通用初始化和跨项目共享连接。[验证范围](docs/validation.md)单独记录。
 
 ## 一句话开始
 
@@ -10,25 +10,38 @@
 
 > 使用 $codex-dsh-collab，连接我的原生 DSH，为【项目绝对路径】完成【目标】，按【验收标准】自主协作，每阶段汇报，收到停止指令就停止新派发。
 
-首次需要原生 Host 地址、访问令牌及任务授权；令牌通过标准输入提供，避免写入聊天、命令参数或 Git。之后可说“继续任务 TASK_ID”或“停止任务 TASK_ID”。Skill 不提供脱离活跃 Codex 对话的永久后台调度。
+先完成下面的一次初始化，其他项目的 Codex 就能发现同一个个人 Skill、工具位置和连接账本。之后可说“继续任务 TASK_ID”或“停止任务 TASK_ID”。Skill 不提供脱离活跃 Codex 对话的永久后台调度。
 
 ## 准备和运行
 
 需要 Node.js ≥22.19、完整原生 DSH Web Host，以及 Codex 可调用本机命令。当前原生集成验证在 Windows 完成。先以自己的配置启动原生 DSH Web，保留浏览器入口；本工具附加到该 Host。
 
-```powershell
+```sh
+git clone https://github.com/happye/codex-dsh.git
+cd codex-dsh
 npm ci
-node bin/codex-dsh.mjs --help
-node bin/codex-dsh.mjs attach --name native --url http://127.0.0.1:PORT --token-stdin
-node bin/codex-dsh.mjs start --connection native --cwd C:\work\project --task demo
-node bin/codex-dsh.mjs send --task demo --text-file C:\work\task.txt --allow-model --wait 60
-node bin/codex-dsh.mjs status --task demo
-node bin/codex-dsh.mjs follow --task demo --wait 60
-node bin/codex-dsh.mjs resume --task demo
-node bin/codex-dsh.mjs stop --task demo
+node bin/codex-dsh.mjs setup --url http://127.0.0.1:PORT --token-stdin
 ```
 
-将 PORT、项目和提示文件替换为实际值。attach 等待一行令牌输入。所有命令使用同一工作目录或同一绝对 `--state-dir`；默认私有账本是当前目录的 `.codex-dsh/`。`send` 会启动原生模型工作；`--allow-model` 代表调用者已取得任务及费用授权，不是费用硬上限。
+把 PORT 替换为原生 Host 实际端口，在本地输入一行访问令牌；也可使用 `--token-file TOKEN_FILE` 从本地文件读取，两个选项不同时使用。不要把令牌放入聊天、URL参数、命令参数或Git。首次认证需要 Host 的真实凭证，工具不绕过原生鉴权。
+
+setup 自动安装个人全局 Skill、记录工具当前路径、创建私有共享账本，并在提供令牌时执行原生鉴权。**GitHub 与安装后的 SKILL.md 正文相同**；每台电脑的路径只在自动生成的 local-settings.json 中，cookie只在私有账本。未提供令牌时只完成本地初始化，返回 authenticationRequired，不冒充已连接。
+
+默认个人目录为用户主目录的 `.codex`，可用 CODEX_HOME 定位。生成的 Skill 在 `skills/codex-dsh-collab`，连接账本在 `codex-dsh-state`。切换项目后，CLI 自动沿用个人配置，无需手写绝对路径或再次提供令牌；鉴权失效时重新 setup。仓库搬迁后从新位置运行 setup 更新定位，保留原有账本。
+
+例如从任意项目调用工具时，用第一次 setup 输出的 toolRoot 定位 bin/codex-dsh.mjs。也可在仓库运行 `npm install -g .`，然后在终端直接调用：
+
+```sh
+codex-dsh connections
+codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --task demo
+codex-dsh send --task demo --text-file PROMPT_FILE --allow-model --wait 60
+codex-dsh status --task demo
+codex-dsh follow --task demo --wait 60
+codex-dsh resume --task demo
+codex-dsh stop --task demo
+```
+
+连接列表只输出非秘密元数据。状态目录优先级为显式 `--state-dir`、个人共享配置、旧版当前目录 `.codex-dsh/`。已有任务若使用旧目录，继续显式指定原目录；不要丢掉旧账本另建相同任务。`send` 会启动原生模型工作；`--allow-model` 代表调用者已取得任务及费用授权，不是费用硬上限。
 
 start 默认创建任务专属原生会话；附加已有会话使用共享停止语义。JSON 返回状态及完整答复的 resultFile，Codex 读取答复和实际交付物后决定下一轮。COMPLETED 仅代表该轮次结束，不代表项目验收通过。
 

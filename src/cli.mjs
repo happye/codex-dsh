@@ -3,31 +3,37 @@ import path from 'node:path';
 import readline from 'node:readline';
 import { StateStore, fault } from './store.mjs';
 import { Controller } from './controller.mjs';
+import { setup, connections, resolveStateDirectory, connectionOrigin } from './setup.mjs';
 
 const help = `codex-dsh: native DSH thin controller (JSON output)
+  setup --url URL [--name NAME] [--state-dir ABSOLUTE] [--token-stdin | --token-file FILE]
+  connections (local connection and task metadata only)
   attach --name NAME --url URL [--token-stdin]
   start --connection NAME --cwd ABSOLUTE [--task ID] [--title TITLE] [--session ID]
   send --task ID --text-file FILE --allow-model [--wait SECONDS]
   status|resume|stop|approvals --task ID
   follow --task ID [--wait SECONDS] (default 60)
   approve --task ID --approval EVENT_ID --decision allowed-once|rejected
-All commands: --state-dir DIR (default .codex-dsh in cwd)
+All commands: --state-dir DIR (explicit > personal Skill profile > cwd/.codex-dsh)
+setup installs the repository Skill unchanged into CODEX_HOME/skills/codex-dsh-collab.
+Without a token setup only configures locally; stored authentication is not a live check.
 Exit codes: 0 success/status, 2 invalid usage, 3 state/conflict, 4 native/transport error.
 send requires explicit model authorization; observation timeout never cancels native work.
 start creates a native session on an attached Host, without changing native configuration.
 stop never kills or archives a Host; STOP_PENDING requires inspection in native UI.
 `;
 const specs = {
+  setup: ['name', 'url', 'token-stdin', 'token-file'], connections: [],
   attach: ['name', 'url', 'token-stdin'], start: ['connection', 'cwd', 'task', 'title', 'session'],
   send: ['task', 'text-file', 'allow-model', 'wait'], status: ['task'], resume: ['task'], stop: ['task'],
   approvals: ['task'], follow: ['task', 'wait'], approve: ['task', 'approval', 'decision'],
 };
-const required = { attach: ['name', 'url'], start: ['connection', 'cwd'], send: ['task', 'text-file'], status: ['task'], resume: ['task'], stop: ['task'], approvals: ['task'], follow: ['task'], approve: ['task', 'approval', 'decision'] };
-async function tokenLine() {
-  const lines = readline.createInterface({ input: process.stdin, terminal: false });
+const required = { setup: [], connections: [], attach: ['name', 'url'], start: ['connection', 'cwd'], send: ['task', 'text-file'], status: ['task'], resume: ['task'], stop: ['task'], approvals: ['task'], follow: ['task'], approve: ['task', 'approval', 'decision'] };
+async function tokenLine(stdin) {
+  const lines = readline.createInterface({ input: stdin, terminal: false });
   try { for await (const line of lines) return line.trim(); return ''; } finally { lines.close(); }
 }
-export async function runCli(argv, { stdout = process.stdout, stderr = process.stderr } = {}) {
+export async function runCli(argv, { stdout = process.stdout, stderr = process.stderr, stdin = process.stdin, cwd = process.cwd(), codexHome } = {}) {
   if (!argv.length || argv[0] === '--help' || argv[0] === 'help' || argv.includes('--help')) { stdout.write(help); return 0; }
   try {
     const command = argv[0], options = {}, allowed = specs[command];
@@ -43,10 +49,21 @@ export async function runCli(argv, { stdout = process.stdout, stderr = process.s
     for (const name of required[command]) if (!options[name]) throw fault('USAGE', `Missing --${name}`);
     const wait = options.wait === undefined ? undefined : Number(options.wait);
     if (wait !== undefined && (!Number.isFinite(wait) || wait < 0)) throw fault('USAGE', '--wait must be nonnegative seconds');
-    const store = await StateStore.open(options['state-dir'] ?? path.join(process.cwd(), '.codex-dsh'));
+    if (options['token-stdin'] && options['token-file']) throw fault('USAGE');
+    if (options.url) options.url = connectionOrigin(options.url);
+    let token;
+    if (options['token-stdin']) token = await tokenLine(stdin);
+    if (options['token-file']) token = (await fs.readFile(path.resolve(cwd, options['token-file']), 'utf8')).trim();
+    if ((options['token-stdin'] || options['token-file']) && !token) throw fault('EMPTY_INPUT');
+    if (command === 'setup') {
+      stdout.write(`${JSON.stringify(await setup(options, { codexHome, token }))}\n`);
+      return 0;
+    }
+    const store = await StateStore.open(await resolveStateDirectory(options['state-dir'], { cwd, codexHome }));
+    if (command === 'connections') { stdout.write(`${JSON.stringify(await connections(store))}\n`); return 0; }
     const controller = new Controller({ store });
     let args = { ...options, ...(wait === undefined ? {} : { wait }) };
-    if (command === 'attach') args.token = options['token-stdin'] ? await tokenLine() : undefined;
+    if (command === 'attach') args.token = token;
     if (command === 'send') {
       if (!options['allow-model']) throw fault('MODEL_PERMISSION_REQUIRED', 'send requires --allow-model');
       args = { ...args, allowModel: true, text: await fs.readFile(options['text-file'], 'utf8') };
