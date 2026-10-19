@@ -2,6 +2,8 @@
 
 先定位工具仓库绝对路径、用户目标项目和统一的绝对状态目录。保持当前原生 Codex 对话作为主控；不增加模型代理或绕过原生 Harness。按项目权限完成规划、验收和阶段汇报。
 
+先读个人Skill目录的local-settings.json（若存在），字段toolRoot/stateDir/connection/url用于跨工作区复用定位。已配置时不再要求用户重复提供stateDir；连接凭证不在该文件，不能因此认定首次attach已成功。仅解析私有账本的非敏感连接元数据，不完整打印state.json。测试fixture里的连接不可当作正式连接复用。
+
 ## 命令合同
 
 在工具仓库使用 node bin/codex-dsh.mjs，或从其他目录用 bin 文件的绝对路径调用。所有命令加相同 --state-dir ABSOLUTE。完整参数以 --help 为准。

@@ -3,6 +3,8 @@ name: codex-dsh-collab
 description: 通过本工具的原生 DSH 控制器启动、继续、查看和停止 Codex 与 DeepSeek Harness 协作；由当前 Codex 对话规划验收，完整原生 DSH 执行任务。
 ---
 
+先读取本Skill目录中的 `local-settings.json`；若工作区副本没有，则查个人 `$CODEX_HOME/skills/codex-dsh-collab/local-settings.json`（未设CODEX_HOME时为用户主目录下 `.codex/skills/codex-dsh-collab/local-settings.json`）。这是本机非敏感连接定位配置，可含 `toolRoot`、`stateDir`、`connection`、`url`；不存令牌或cookie。已有配置时沿用其绝对stateDir及连接名，不再问用户路径，也不在当前项目另建账本。核对配置和原生Host是否有效；只有配置缺失/歧义或首次鉴权确实缺少凭证时再问。不得完整输出state.json，其中含cookie。
+
 读取工具仓库的 docs/manuals/codex-guide.md；本仓库中的本文件位于 .agents/skills/codex-dsh-collab。若 Skill 已复制到个人目录，先定位工具仓库，不能把个人 Skill 目录误当工具根。不以旧研究探针代替产品 CLI。
 
 先取得目标项目绝对路径、目标、范围、验收条件和原生 Host 连接。只缺少实际必需信息时询问；已授权的例行步骤自主执行。令牌通过本地标准输入传给 attach，不要求用户粘贴到聊天。

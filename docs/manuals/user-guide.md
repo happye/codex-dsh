@@ -23,6 +23,8 @@ Codex 负责规划和验收，DSH 执行原生任务；正常循环无需你逐�
 
 ## 状态和控制权
 
+跨项目应复用同一连接账本。在个人Skill目录创建不含秘密的 `local-settings.json`，填写工具仓库绝对路径toolRoot、共享账本绝对路径stateDir、连接名connection及Host地址url；Skill会先读取它。工作区Skill副本也会查个人配置。首次attach成功后即可跨项目复用，除非Host更换凭证或连接失效。Skill安装本身不等于已经完成首次鉴权；找不到首次令牌时，请在本地安全提供，不应猜测或绕过认证。
+
 完整答复保存在私有状态目录的 reply 文件，命令返回 resultFile。Codex 应读答复并检查真实文件和测试结果，不能只凭“完成”文字接收成果。
 
 COMPLETED 是一个原生轮次完成。SUBMISSION_UNKNOWN 是是否接收不明，不能直接重发。观察超时只结束等待。STOP_PENDING 表示控制器已经阻止新派发，但工具、子任务、共享会话等活动未确认全部静止；仍需查看原生 UI。STOPPED 也不保证整个 Host 的所有后台任务均停止。

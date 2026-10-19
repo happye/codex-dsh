@@ -8,6 +8,7 @@ node_modules/
 .venv/
 *.log
 .codex-dsh/
+.agents/skills/codex-dsh-collab/local-settings.json
 coverage/
 *.tgz
 # Local research and private handoff history are retained locally, not published.
