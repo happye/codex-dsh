@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex × DeepSeek Harness"
+  short_description: "通过原生接口自主派发、跟随、验收与追修 DeepSeek Harness 任务"
+  default_prompt: "使用 $codex-dsh-collab，为指定项目设定目标和验收标准，连接原生 DSH 并自主协作，阶段汇报直到完成或停止。"

@@ -1,0 +1,13 @@
+flowchart TD
+  U[用户：目标、验收与停止指令] --> C[当前原生 Codex 对话：规划与验收]
+  C --> CLI[薄控制器：持久账本与请求关联]
+  CLI -->|原生 HTTP RPC| H[完整原生 DSH Web Host]
+  H -->|原生 WebSocket 事件与答复| CLI
+  CLI --> C
+  H <--> UI[原生浏览器：观察、审批与接管]
+  H --> N[原生模型、上下文、工具、skills、MCP、子 Agent]
+  N --> A[文件与测试成果]
+  A --> C
+  C --> D{验收结果}
+  D -->|追修| CLI
+  D -->|完成、受阻或停止| R[阶段汇报并停止新派发]

@@ -1,0 +1,334 @@
+{
+  "date": "2026-10-19",
+  "kind": "LOCAL_MOCK",
+  "realProviderRequests": 0,
+  "localProtocolTests": {
+    "passed": 27,
+    "failed": 0,
+    "command": "npm test"
+  },
+  "native": {
+    "installedBuilt": {
+      "executionMode": "INSTALLED_BUILT",
+      "status": "PARTIAL_LOCAL_MOCK_NATIVE_APPROVAL_BLOCKED",
+      "checks": [
+        {
+          "name": "product attach authenticates full native Host",
+          "passed": true
+        },
+        {
+          "name": "product creates native exclusive session",
+          "passed": true
+        },
+        {
+          "name": "native write completes via product CLI",
+          "passed": true
+        },
+        {
+          "name": "Codex reads native write artifact",
+          "passed": true
+        },
+        {
+          "name": "independent follow recovers completed request",
+          "passed": true
+        },
+        {
+          "name": "separate CLI process recovers persisted request ID",
+          "passed": true
+        },
+        {
+          "name": "resume never resends completed prompt",
+          "passed": true
+        },
+        {
+          "name": "second native edit completes",
+          "passed": true
+        },
+        {
+          "name": "Codex acceptance observes second-round edit",
+          "passed": true
+        },
+        {
+          "name": "second native session exists on same shared Host",
+          "passed": true
+        },
+        {
+          "name": "observation timeout does not mark completion",
+          "passed": true
+        },
+        {
+          "name": "observation timeout leaves provider connected",
+          "passed": true
+        },
+        {
+          "name": "stop retains STOP_PENDING after observed native tools",
+          "passed": true
+        },
+        {
+          "name": "stop interrupts owned provider stream",
+          "passed": true
+        },
+        {
+          "name": "another native session remains accessible",
+          "passed": true
+        },
+        {
+          "name": "another session can still execute native prompt after stop",
+          "passed": true
+        },
+        {
+          "name": "authenticated native UI root remains HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "every completed request retains native turn association",
+          "passed": true
+        }
+      ],
+      "nativeApproval": {
+        "entry": "packages/interaction/user-approval/lib/index.js",
+        "sha256": "dae8bf34f3d523beaeee5670d7c7c10c0e08e665eae203471da4c92fd16fd718",
+        "status": "BLOCKED_NATIVE_APPROVAL_BYPASS"
+      },
+      "nativeFileHashes": {
+        "before": {
+          "apps/cli/lib/bin.js": "c5d895baab14abe0a24bdd57d08511adb48646a0f34875fed4da3b69a3a4f5dc",
+          "packages/interaction/user-approval/lib/index.js": "dae8bf34f3d523beaeee5670d7c7c10c0e08e665eae203471da4c92fd16fd718",
+          "packages/sandbox/sandbox/lib/index.js": "4f95f280f19aad61ae4de64f7767ce4709169461ef507d8cedbeee2ea90cb89b"
+        },
+        "after": {
+          "apps/cli/lib/bin.js": "c5d895baab14abe0a24bdd57d08511adb48646a0f34875fed4da3b69a3a4f5dc",
+          "packages/interaction/user-approval/lib/index.js": "dae8bf34f3d523beaeee5670d7c7c10c0e08e665eae203471da4c92fd16fd718",
+          "packages/sandbox/sandbox/lib/index.js": "4f95f280f19aad61ae4de64f7767ce4709169461ef507d8cedbeee2ea90cb89b"
+        }
+      },
+      "selectedNativeFilesUnchanged": true,
+      "mockRequests": 7,
+      "cleanup": {
+        "jobActiveAfterCleanup": 0,
+        "hostPortReleased": true,
+        "mockPortReleased": true,
+        "egressDenied": 0,
+        "logOverflow": false
+      }
+    },
+    "sourceFixture": {
+      "executionMode": "SOURCE_FIXTURE",
+      "status": "PASS_LOCAL_MOCK_PRODUCT_NATIVE_E2E",
+      "checks": [
+        {
+          "name": "product attach authenticates full native Host",
+          "passed": true
+        },
+        {
+          "name": "product creates native exclusive session",
+          "passed": true
+        },
+        {
+          "name": "native write completes via product CLI",
+          "passed": true
+        },
+        {
+          "name": "Codex reads native write artifact",
+          "passed": true
+        },
+        {
+          "name": "independent follow recovers completed request",
+          "passed": true
+        },
+        {
+          "name": "separate CLI process recovers persisted request ID",
+          "passed": true
+        },
+        {
+          "name": "resume never resends completed prompt",
+          "passed": true
+        },
+        {
+          "name": "second native edit completes",
+          "passed": true
+        },
+        {
+          "name": "Codex acceptance observes second-round edit",
+          "passed": true
+        },
+        {
+          "name": "separate CLI rejected accepted by live native broker",
+          "passed": true
+        },
+        {
+          "name": "rejected native turn completes",
+          "passed": true
+        },
+        {
+          "name": "separate CLI allowed-once accepted by live native broker",
+          "passed": true
+        },
+        {
+          "name": "allowed-once native turn completes",
+          "passed": true
+        },
+        {
+          "name": "approved write exists only in owned outbox",
+          "passed": true
+        },
+        {
+          "name": "rejected native write produces no file",
+          "passed": true
+        },
+        {
+          "name": "second native session exists on same shared Host",
+          "passed": true
+        },
+        {
+          "name": "observation timeout does not mark completion",
+          "passed": true
+        },
+        {
+          "name": "observation timeout leaves provider connected",
+          "passed": true
+        },
+        {
+          "name": "stop retains STOP_PENDING after observed native tools",
+          "passed": true
+        },
+        {
+          "name": "stop interrupts owned provider stream",
+          "passed": true
+        },
+        {
+          "name": "another native session remains accessible",
+          "passed": true
+        },
+        {
+          "name": "another session can still execute native prompt after stop",
+          "passed": true
+        },
+        {
+          "name": "authenticated native UI root remains HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "every completed request retains native turn association",
+          "passed": true
+        }
+      ],
+      "nativeApproval": {
+        "entry": "packages/interaction/user-approval/lib/index.js",
+        "sha256": "dae8bf34f3d523beaeee5670d7c7c10c0e08e665eae203471da4c92fd16fd718",
+        "status": "VERIFIED_LOCAL_MOCK",
+        "sourceSha256": "6bba9feef5257063aa41d89ddd51c31a1a474b5920c256c65d5ec2857cff1ff6"
+      },
+      "nativeFileHashes": {
+        "before": {
+          "apps/cli/lib/bin.js": "c5d895baab14abe0a24bdd57d08511adb48646a0f34875fed4da3b69a3a4f5dc",
+          "packages/interaction/user-approval/lib/index.js": "dae8bf34f3d523beaeee5670d7c7c10c0e08e665eae203471da4c92fd16fd718",
+          "packages/sandbox/sandbox/lib/index.js": "4f95f280f19aad61ae4de64f7767ce4709169461ef507d8cedbeee2ea90cb89b"
+        },
+        "after": {
+          "apps/cli/lib/bin.js": "c5d895baab14abe0a24bdd57d08511adb48646a0f34875fed4da3b69a3a4f5dc",
+          "packages/interaction/user-approval/lib/index.js": "dae8bf34f3d523beaeee5670d7c7c10c0e08e665eae203471da4c92fd16fd718",
+          "packages/sandbox/sandbox/lib/index.js": "4f95f280f19aad61ae4de64f7767ce4709169461ef507d8cedbeee2ea90cb89b"
+        }
+      },
+      "selectedNativeFilesUnchanged": true,
+      "sourceFixtureFiles": [
+        {
+          "path": "user-approval/index.ts",
+          "sha256": "6bba9feef5257063aa41d89ddd51c31a1a474b5920c256c65d5ec2857cff1ff6"
+        },
+        {
+          "path": "user-approval/index.ts.mjs",
+          "sha256": "7c353bcafa7ed1b526f3d10be33571ea4d830da48a52ff1439d47371075169cd"
+        },
+        {
+          "path": "user-approval/types.ts",
+          "sha256": "4413da55040e100e5700b5b89dccf387e08275587ac21876cba8cbab2df34037"
+        },
+        {
+          "path": "user-approval/types.ts.mjs",
+          "sha256": "feb46e21f76d7605951b267d6af6e74405993ade964ef5acca9490e94fe0e077"
+        },
+        {
+          "path": "sandbox/diagnostics.ts",
+          "sha256": "758d86ef3e565f534a9903ea75b25bab92d31d7c080c8740ff118388966c8659"
+        },
+        {
+          "path": "sandbox/diagnostics.ts.mjs",
+          "sha256": "5b83e1fbceb66cf6062447f424c18721fdd0eeebfd2c204cce5a833130be5cdb"
+        },
+        {
+          "path": "sandbox/escalation.ts",
+          "sha256": "82b165b60d20ebcd78ab51a4ba503a88b4305fa6a8ba1b420da749759ecc5085"
+        },
+        {
+          "path": "sandbox/escalation.ts.mjs",
+          "sha256": "b8ffcd48cdbd0c87c3b062c800b5d7060f8d88bd0fbef19522cdb708062d7a23"
+        },
+        {
+          "path": "sandbox/index.ts",
+          "sha256": "46592025ce36d04ff8d1bfa9d6594dd8d1527883649ccf40ff7a169e94e68dc6"
+        },
+        {
+          "path": "sandbox/index.ts.mjs",
+          "sha256": "123fcaed699ea8f8a2ac400da8a5dffb9c56806b646730713a1af4f018f5071f"
+        },
+        {
+          "path": "sandbox/roots.ts",
+          "sha256": "8a18e1474012415def8197a4ee493394a91cc739a6ec94eb83c6b4d980b7a23b"
+        },
+        {
+          "path": "sandbox/roots.ts.mjs",
+          "sha256": "ce6563ebda904388a15e1f53df701fcec39c15b44496ae7510ed92ebef8d1331"
+        }
+      ],
+      "mockRequests": 11,
+      "cleanup": {
+        "jobActiveAfterCleanup": 0,
+        "hostPortReleased": true,
+        "mockPortReleased": true,
+        "egressDenied": 0,
+        "logOverflow": false
+      }
+    }
+  },
+  "limits": [
+    "Installed build bypasses native approval and sandbox escalation; its approval path is not verified.",
+    "SOURCE_FIXTURE loads two native packages from installed TypeScript source; it is not the unchanged installed build.",
+    "No real model semantics, maximum context/output, cost/cache parity, visual UI parity or universal descendant stop claim."
+  ],
+  "productFilesSha256": {
+    "src/cli.mjs": "101a8a3ab77b4ed3e663e0568c6a76e01cb8156d4fbfcac0e4aa1c125ed534a2",
+    "src/controller.mjs": "c7dfec045f743360939aa2819c6edd6e81c5aaf52b7150b83cc37d2c6f622745",
+    "src/events.mjs": "3ff8b0d8382952edb1787a84ad61725f99f7177f0b87a8eb335c853ff9b81f43",
+    "src/native.mjs": "9e0eab4c1b0eb68b96d7f5a2d581d2ce935534d10994eb8f9972ab4ec7ef677a",
+    "src/store.mjs": "b0a0357b80c89ab7f67935e6d6e0ae3e379e028317b4873c185e2d884baa8a7c",
+    "bin/codex-dsh.mjs": "c2ccf60dc3ba96bb9fad85d06c4bd085718a854591fce8684cde7becd3b05059",
+    "test/controller.test.mjs": "8687fb9745db52dfac9dd46df07f31010616ab8bb02340e41fffba8dd7c67ef2",
+    "test/events.test.mjs": "fd1e120ba1b2729dcc50f196172214aa0063862d619f0b8c1afb89a1fef0e1d8",
+    "test/helpers/approval-source-fixture.cjs": "dbd4aa30fce4e21d316f7e6b1ffa4ead1b89cf8115733698704ed4027cf659aa",
+    "test/helpers/loopback-only.cjs": "383e79e5e13b88b25ea837ef82d45f2b7dcfe0a41019e6c06373295c8433e42e",
+    "test/helpers/native_fixture.py": "529cc01adb809bf09c3f51fada45c33f8a51c61cd393a9d8fef2e71a086483fc",
+    "test/helpers/windows_job.py": "92186d3cb465eff95544899ad832c14657986e62c83100f675c83d4ec7eb9d1e",
+    "test/native/controller.test.mjs": "920e071204024e9054ca0dc533a7c5a9830b2f42c91d48ddcbd6b94d01c35457",
+    "test/native-transport.test.mjs": "e210f8f92fd088acfdaf087efc8b80a8bae49d6c36565396e1bab611bb856b46",
+    "test/store.test.mjs": "3d0e080a6324fe28fcbc764097a7531c8145bd50063ffe2b05638998b731d558"
+  },
+  "cleanReleaseReproduction": {
+    "source": "Only release allowlist files exported from Git index; no private research/cache files",
+    "dependencyInstall": "npm ci --offline --ignore-scripts: PASS",
+    "localTests": "27 PASS",
+    "cliHelp": "PASS",
+    "installedNative": {
+      "checks": 18,
+      "mockRequests": 7,
+      "status": "PARTIAL_LOCAL_MOCK_NATIVE_APPROVAL_BLOCKED"
+    },
+    "sourceFixture": {
+      "checks": 24,
+      "mockRequests": 11,
+      "status": "PASS_LOCAL_MOCK_PRODUCT_NATIVE_E2E"
+    },
+    "bothModesCleanup": "Job active 0, both ports released, selected native hashes unchanged"
+  }
+}
