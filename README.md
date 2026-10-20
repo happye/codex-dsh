@@ -10,7 +10,7 @@
 
 > 使用 $codex-dsh-collab，连接我的原生 DSH，为【项目绝对路径】完成【目标】，按【验收标准】自主协作，每阶段汇报，收到停止指令就停止新派发。
 
-先完成下面的一次初始化，其他项目的 Codex 就能发现同一个个人 Skill、工具位置和连接账本。之后可说“继续任务 TASK_ID”或“停止任务 TASK_ID”。Skill 不提供脱离活跃 Codex 对话的永久后台调度。
+先完成下面的一次初始化，其他项目的 Codex 就能发现同一个个人 Skill、工具位置和连接账本。之后可说“继续任务 TASK_ID”或“停止任务 TASK_ID”。续接沿用原 task、账本和 DSH session；Skill 不提供脱离活跃 Codex 对话的永久后台调度。
 
 ## 准备和运行
 
@@ -41,11 +41,13 @@ codex-dsh resume --task demo
 codex-dsh stop --task demo
 ```
 
-连接列表只输出非秘密元数据。状态目录优先级为显式 `--state-dir`、个人共享配置、旧版当前目录 `.codex-dsh/`。已有任务若使用旧目录，继续显式指定原目录；不要丢掉旧账本另建相同任务。`send` 会启动原生模型工作；`--allow-model` 代表调用者已取得任务及费用授权，不是费用硬上限。
+连接列表只输出非秘密元数据，包括该账本下已绑定的 task、cwd 和 session ID；它不搜索原生会话标题，也不检查 Host 当前在线。状态目录优先级为显式 `--state-dir`、个人共享配置、旧版当前目录 `.codex-dsh/`。已有任务若使用旧目录，继续显式指定原目录；不要丢掉旧账本另建相同任务。`send` 会启动原生模型工作；`--allow-model` 代表调用者已取得任务及费用授权，不是费用硬上限。
 
 start 默认创建任务专属原生会话；附加已有会话使用共享停止语义。JSON 返回状态及完整答复的 resultFile，Codex 读取答复和实际交付物后决定下一轮。COMPLETED 仅代表该轮次结束，不代表项目验收通过。
 
 同一任务默认持续同一 DSH 会话；换 Codex 聊天后说“继续任务 TASK_ID，沿用原账本和会话，先恢复核对”。指定会话若已绑定，查出原 task 后执行 `resume/status`，不要再 start；仅未绑定时才用 `start --session SESSION_ID`，控制器不会自动查找并复用旧 task。`--state-dir` 不是项目目录，当前 CLI 没有 workspace 命令；目录、权限与真实 Git 须先核对，流程见 [Codex 手册](docs/manuals/codex-guide.md#resume-session)。
+
+协作工具仓库与目标项目是两个独立 Git 仓库；改动、验收、提交和推送分别核对各自的 Git 根、分支与授权。一个仓库的提交不能代表另一个仓库已交付。具体以 Codex 负责 Git 的合同为准。
 
 ## 原生边界
 

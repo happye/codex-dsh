@@ -22,7 +22,7 @@ setup会将仓库 .agents/skills/codex-dsh-collab 的通用Skill原样安装到�
 
 Codex 负责规划和验收，DSH 执行原生任务；正常循环无需你逐轮传话。Codex 会说明本阶段派发了什么、DSH 返回了什么、验收结果和下一步。若停止指令在工具阻塞期间到达，Codex 需要恢复执行机会才能调用停止；不是独立的实时停止服务。
 
-同一任务默认在同一个 DSH session 连续多轮工作，换 Codex 聊天不会自动新建 DSH 会话。Codex 读取个人配置和任务交接后，通用恢复命令为：
+同一任务默认在同一个 DSH session 连续多轮工作，换 Codex 聊天不会自动新建 DSH 会话。续接时明确给出原 task ID，并沿用原账本和 session；Codex 读取个人配置和任务交接后，通用恢复命令为：
 
 ```sh
 codex-dsh connections
@@ -38,11 +38,13 @@ codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --task demo --se
 
 `attach` 连接 Host；挂靠 session 用 `start --session`，不存在 `attach --session`。同账本已有绑定则复用原 task，不重复挂靠。当前不会自动选出唯一活动任务，也不会在恢复时自动保证真实 cwd 与预期一致；Codex 必须先核对，再继续派发。
 
-也可以直接对Codex说“继续工作区【项目】里名为【会话标题】的对话”。Codex先从原生会话列表核标题和目录，重名时须消除歧义，再找账本已有绑定；这不是CLI已经支持按名称选择。task ID是控制器账本编号，不是DSH原生界面字段；session ID是原生会话身份，界面主要显示可改标题，不能拿标题当唯一ID。查看已绑定的task/cwd/session ID可执行`codex-dsh connections`，用户无需手抄UUID。
+也可以直接对 Codex 说“继续工作区【项目】里名为【会话标题】的对话”。Codex 需先用可用的原生会话列表核对标题和真实目录，重名时消除歧义，再找到账本已有绑定；CLI 本身不按标题查找，也不保证 Codex 当前可访问原生列表。task ID 是控制器账本编号，session ID 是原生会话身份，标题可修改且不唯一。`codex-dsh connections` 可显示已绑定的 task/cwd/session ID，但不能发现未绑定会话。
 
 ## 工作目录与实施分工
 
-项目根、原生 UI 工作区、控制器状态目录是三个不同位置。`--cwd` 用于新会话的工作目录；已有会话的 `--cwd` 参数不会迁移旧会话。`--state-dir` 只选择私有账本。当前 CLI 没有 workspace 命令；原生 API 能注册工作区，本轮仅核对了一次配置和成员读回，未做 UI 视觉验收。Windows 下相同目录的不同斜杠字符串也可能被原生校验拒绝，新建应使用规范 realpath；跨目录或跨项目需新会话或用户明确授权并核对的迁移，不能假装目录已经改变。
+项目根、原生 UI 工作区、控制器状态目录是三个不同位置。`--cwd` 用于新会话的工作目录；已有会话的 `--cwd` 参数不会迁移旧会话。`--state-dir` 只选择私有账本。当前 CLI 没有 workspace 命令；原生 API 能注册工作区，已完成的一次配置及成员读回只证明该次接入成功，未做 UI 视觉验收，也不证明 CLI 具备工作区管理能力。Windows 下相同目录的不同斜杠字符串也可能被原生校验拒绝，新建应使用规范 realpath；跨目录或跨项目需新会话或用户明确授权并核对的迁移，不能假装目录已经改变。
+
+协作工具仓库和业务目标仓库必须分别管理 Git。DSH 按合同实施并回报；Codex 核对各自仓库的 Git 根、分支、HEAD、差异和允许文件，分别进行获授权的提交与推送。若业务仓库明确指定 main，按其合同操作；工具仓库状态与业务仓库状态分别报告。
 
 Codex 在派发前确认真实 Git 根、branch、HEAD 和已有改动，给 DSH 明确项目/工作区、task/session、允许文件、目标、验收、禁止范围、阶段与费用合同，并指定 `git_owner=Codex`。DSH 承担实施 subagent 的职责，返回变更、实际验证、产物和限制；这是职责分工，不是把 DSH 改成 Codex 原生嵌套 subagent。Codex 负责最终验收及获授权的 Git 操作，DSH 的 COMPLETED 不能代替验收。
 
