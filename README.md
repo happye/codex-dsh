@@ -45,6 +45,8 @@ codex-dsh stop --task demo
 
 start 默认创建任务专属原生会话；附加已有会话使用共享停止语义。JSON 返回状态及完整答复的 resultFile，Codex 读取答复和实际交付物后决定下一轮。COMPLETED 仅代表该轮次结束，不代表项目验收通过。
 
+同一任务默认持续同一 DSH 会话；换 Codex 聊天后说“继续任务 TASK_ID，沿用原账本和会话，先恢复核对”。指定会话若已绑定，查出原 task 后执行 `resume/status`，不要再 start；仅未绑定时才用 `start --session SESSION_ID`，控制器不会自动查找并复用旧 task。`--state-dir` 不是项目目录，当前 CLI 没有 workspace 命令；目录、权限与真实 Git 须先核对，流程见 [Codex 手册](docs/manuals/codex-guide.md#resume-session)。
+
 ## 原生边界
 
 模型、上下文整理、输出参数、工具、skills、MCP、子 Agent、配置和权限由 DSH 决定。控制器不覆盖 profile，不增加实验中的 8192 输出或 1 MiB WebSocket 限制。它不是操作系统沙箱，也不保证原生所有功能均已逐项验收。
@@ -57,6 +59,7 @@ start 默认创建任务专属原生会话；附加已有会话使用共享停�
 - [Codex 手册](docs/manuals/codex-guide.md)：命令、状态、审批和循环决策。
 - [流程图与技术说明](docs/architecture.md) · [Mermaid 源文件](docs/architecture.mmd)。
 - [协作 Skill](.agents/skills/codex-dsh-collab/SKILL.md) · [验证范围](docs/validation.md)。
+- [已知问题与迭代记录](docs/validation.md#known-issues)：唯一长期待办入口，含目录校验缺口、工作区能力及真实工程闭环待验；有限业务试用与 mock 验收分开记录。
 
 ```powershell
 npm test

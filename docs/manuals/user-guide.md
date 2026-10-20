@@ -15,11 +15,38 @@ setup会将仓库 .agents/skills/codex-dsh-collab 的通用Skill原样安装到�
 ## 日常表达
 
 - 新任务：“按上述 Skill，在【路径】完成【目标】，不超出【允许范围】。”
-- 继续：“继续任务 demo，使用之前同一个状态目录，先恢复核对再执行。”
+- 新聊天续工：“使用 $codex-dsh-collab，继续任务 demo，沿用原状态目录与同一 DSH 会话；先核对项目根、Git 基线和上轮结果再执行。”
+- 指定已有会话：“使用已有会话 SESSION_ID，在【项目根】继续【目标】；先核对真实目录、当前活动和权限，已绑定就复用原任务。”
 - 查看：“汇报 demo 当前目标、原生会话、进展、下一步和费用可见范围。”
 - 停止：“停止任务 demo，不再派发，报告仍未确认停止的原生活动。”
 
 Codex 负责规划和验收，DSH 执行原生任务；正常循环无需你逐轮传话。Codex 会说明本阶段派发了什么、DSH 返回了什么、验收结果和下一步。若停止指令在工具阻塞期间到达，Codex 需要恢复执行机会才能调用停止；不是独立的实时停止服务。
+
+同一任务默认在同一个 DSH session 连续多轮工作，换 Codex 聊天不会自动新建 DSH 会话。Codex 读取个人配置和任务交接后，通用恢复命令为：
+
+```sh
+codex-dsh connections
+codex-dsh resume --task demo
+codex-dsh status --task demo
+```
+
+resume 只读历史并恢复观察，不重发旧提示。若要挂靠尚未绑定的指定会话，核对后运行：
+
+```sh
+codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --task demo --session SESSION_ID
+```
+
+`attach` 连接 Host；挂靠 session 用 `start --session`，不存在 `attach --session`。同账本已有绑定则复用原 task，不重复挂靠。当前不会自动选出唯一活动任务，也不会在恢复时自动保证真实 cwd 与预期一致；Codex 必须先核对，再继续派发。
+
+也可以直接对Codex说“继续工作区【项目】里名为【会话标题】的对话”。Codex先从原生会话列表核标题和目录，重名时须消除歧义，再找账本已有绑定；这不是CLI已经支持按名称选择。task ID是控制器账本编号，不是DSH原生界面字段；session ID是原生会话身份，界面主要显示可改标题，不能拿标题当唯一ID。查看已绑定的task/cwd/session ID可执行`codex-dsh connections`，用户无需手抄UUID。
+
+## 工作目录与实施分工
+
+项目根、原生 UI 工作区、控制器状态目录是三个不同位置。`--cwd` 用于新会话的工作目录；已有会话的 `--cwd` 参数不会迁移旧会话。`--state-dir` 只选择私有账本。当前 CLI 没有 workspace 命令；原生 API 能注册工作区，本轮仅核对了一次配置和成员读回，未做 UI 视觉验收。Windows 下相同目录的不同斜杠字符串也可能被原生校验拒绝，新建应使用规范 realpath；跨目录或跨项目需新会话或用户明确授权并核对的迁移，不能假装目录已经改变。
+
+Codex 在派发前确认真实 Git 根、branch、HEAD 和已有改动，给 DSH 明确项目/工作区、task/session、允许文件、目标、验收、禁止范围、阶段与费用合同，并指定 `git_owner=Codex`。DSH 承担实施 subagent 的职责，返回变更、实际验证、产物和限制；这是职责分工，不是把 DSH 改成 Codex 原生嵌套 subagent。Codex 负责最终验收及获授权的 Git 操作，DSH 的 COMPLETED 不能代替验收。
+
+长期问题和后续迭代统一看 [已知问题与迭代记录](../validation.md#known-issues)。本地 progress 不另维护一份待办；实际工程写入、测试、追修和 Git 验收闭环仍需单独验证。
 
 ## 状态和控制权
 
