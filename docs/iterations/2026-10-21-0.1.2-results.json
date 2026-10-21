@@ -1,0 +1,457 @@
+{
+  "date": "2026-10-21",
+  "version": "0.1.2",
+  "status": "LOCAL_FIXES_VERIFIED_NATIVE_CANCEL_UNRESOLVED",
+  "realProviderRequests": 0,
+  "tests": {
+    "fullSuite": {
+      "passed": 57,
+      "failed": 1,
+      "total": 58,
+      "reason": "Legacy authentication assertion expected code-only output before safe diagnostic was added",
+      "originalAuthenticationFixtureSha256": "8652d4c6b57887ece16f9de560be4b2746efdb3d54af74f2cf5f662b3472447a"
+    },
+    "affectedRecheck": {
+      "passed": 1,
+      "failed": 0,
+      "case": "authentication failure prints a safe diagnostic and does not publish credentials",
+      "currentFixtureSha256": "0d5bb075f15ce54cb73c3f8e56172f7930834d272197a7099dfdec97b52c36e8"
+    },
+    "reuse": "Historical full suite: 57 pass/1 failed legacy assertion. Only affected auth assertion rerun passed; later stop changes verified by final focused 12-case regression. No fresh full-suite pass claimed for current source.",
+    "baselineFilesSha256": {
+      "src/cli.mjs": "fee5304fe0a10d0d378f77c78775ebdb80f2db292413e958fd273571a118ebe7",
+      "src/controller.mjs": "3358d175b7e00a42278870694eea9f5284137975aea4663861b037d8c2f70042",
+      "src/events.mjs": "3ff8b0d8382952edb1787a84ad61725f99f7177f0b87a8eb335c853ff9b81f43",
+      "src/identity.mjs": "1d399e2c03ac2fdd12a589974931e2a3b1dafdcd1d304dcc305a75f873c09ea1",
+      "src/native.mjs": "cb4d28c74c8eef8c8f5a0b7e3328492b9b42ba6f2d53562da8bf86d1d01fe882",
+      "src/setup.mjs": "f8bb0db9fa01d1405250127d1054c5b2d6dcfd82d68b4e72422290dd9190af5a",
+      "src/store.mjs": "b0a0357b80c89ab7f67935e6d6e0ae3e379e028317b4873c185e2d884baa8a7c",
+      "test/cli-safety.test.mjs": "5429c730e1314f69ed77e3859ae54820a44d6e5e4c380ebdb222b74237ae9cc5",
+      "test/controller.test.mjs": "3398631695b90f465e134992515fdb919258aa23caaf5c2aefbd46319105bea2",
+      "test/events.test.mjs": "fd1e120ba1b2729dcc50f196172214aa0063862d619f0b8c1afb89a1fef0e1d8",
+      "test/helpers/approval-source-fixture.cjs": "dbd4aa30fce4e21d316f7e6b1ffa4ead1b89cf8115733698704ed4027cf659aa",
+      "test/helpers/loopback-only.cjs": "383e79e5e13b88b25ea837ef82d45f2b7dcfe0a41019e6c06373295c8433e42e",
+      "test/helpers/native_fixture.py": "529cc01adb809bf09c3f51fada45c33f8a51c61cd393a9d8fef2e71a086483fc",
+      "test/helpers/windows_job.py": "92186d3cb465eff95544899ad832c14657986e62c83100f675c83d4ec7eb9d1e",
+      "test/identity.test.mjs": "5150d634a369627a44640cd4f484840107dc18b968eeb7762d9e883bdea6c0a8",
+      "test/native/controller.test.mjs": "49cf25d4d995d58c9d3abe03d112ecd8b831b0d4af862794511c183de91abfcd",
+      "test/native-transport.test.mjs": "7d0f6de9d54d5675ebb754f3f85b6f61f635f94748cddba2807e4961563724be",
+      "test/setup.test.mjs": "0d5bb075f15ce54cb73c3f8e56172f7930834d272197a7099dfdec97b52c36e8",
+      "test/store.test.mjs": "3d0e080a6324fe28fcbc764097a7531c8145bd50063ffe2b05638998b731d558",
+      "bin/codex-dsh.mjs": "c2ccf60dc3ba96bb9fad85d06c4bd085718a854591fce8684cde7becd3b05059"
+    },
+    "stopReceiptFocused": {
+      "command": "node --test --test-name-pattern='stop|native queue' test/controller.test.mjs",
+      "exitCode": 0,
+      "passed": 12,
+      "failed": 0,
+      "durationMs": 9056.7732,
+      "scope": "local focused mock only; no full or native run",
+      "corrections": [
+        "no extra session/list before cancel; before.running=null",
+        "terminal state and reason guarded by latest attempt id"
+      ],
+      "filesSha256": {
+        "src/controller.mjs": "08990a6124ca87427957ea0cdce42dc8e393d8903ab036adbbd38bfd8a3d3a81",
+        "test/controller.test.mjs": "12ed3b592c198c0fee8a584b855795255896c486ef370a75185a4f83f8b70576"
+      }
+    }
+  },
+  "native": {
+    "kind": "LOCAL_MOCK",
+    "overall": "FAIL",
+    "recordedChecksPassed": 32,
+    "checks": [
+      {
+        "name": "setup authenticates native Host in isolated CODEX_HOME",
+        "passed": true
+      },
+      {
+        "name": "setup selects personal shared state inside fixture",
+        "passed": true
+      },
+      {
+        "name": "setup installs unchanged portable Skill body",
+        "passed": true
+      },
+      {
+        "name": "generated local settings locate tool and shared ledger",
+        "passed": true
+      },
+      {
+        "name": "generated local settings exclude native token and cookie",
+        "passed": true
+      },
+      {
+        "name": "another working directory discovers setup connection without state flag",
+        "passed": true
+      },
+      {
+        "name": "profile start creates native session without explicit state directory",
+        "passed": true
+      },
+      {
+        "name": "native bound task discovery confirms directory and exact title projection",
+        "passed": true
+      },
+      {
+        "name": "unique recovery uses original native session without model dispatch",
+        "passed": true
+      },
+      {
+        "name": "isolated wrong-directory ledger authenticates without changing native session",
+        "passed": true
+      },
+      {
+        "name": "existing native session rejects wrong directory attachment",
+        "passed": true
+      },
+      {
+        "name": "persisted wrong directory cannot dispatch prompt",
+        "passed": true
+      },
+      {
+        "name": "profile send from different directory completes native turn",
+        "passed": true
+      },
+      {
+        "name": "profile status recovers same session and request from original directory",
+        "passed": true
+      },
+      {
+        "name": "profile reply remains available in shared ledger",
+        "passed": true
+      },
+      {
+        "name": "repeated setup preserves existing native request ledger",
+        "passed": true
+      },
+      {
+        "name": "connections exposes existing task locator across projects",
+        "passed": true
+      },
+      {
+        "name": "cross-directory profile use never creates cwd fallback ledgers",
+        "passed": true
+      },
+      {
+        "name": "product attach authenticates full native Host",
+        "passed": true
+      },
+      {
+        "name": "product creates native exclusive session",
+        "passed": true
+      },
+      {
+        "name": "native write completes via product CLI",
+        "passed": true
+      },
+      {
+        "name": "Codex reads native write artifact",
+        "passed": true
+      },
+      {
+        "name": "independent follow recovers completed request",
+        "passed": true
+      },
+      {
+        "name": "separate CLI process recovers persisted request ID",
+        "passed": true
+      },
+      {
+        "name": "resume never resends completed prompt",
+        "passed": true
+      },
+      {
+        "name": "second native edit completes",
+        "passed": true
+      },
+      {
+        "name": "Codex acceptance observes second-round edit",
+        "passed": true
+      },
+      {
+        "name": "second native session exists on same shared Host",
+        "passed": true
+      },
+      {
+        "name": "multiple bound native tasks require explicit selection without dispatch",
+        "passed": true
+      },
+      {
+        "name": "observation timeout does not mark completion",
+        "passed": true
+      },
+      {
+        "name": "observation timeout leaves provider connected",
+        "passed": true
+      },
+      {
+        "name": "stop retains STOP_PENDING after observed native tools",
+        "passed": true
+      }
+    ],
+    "failure": "E2E condition timeout",
+    "mockRequests": 6,
+    "cleanup": {
+      "jobActiveAfterCleanup": 0,
+      "hostPortReleased": true,
+      "mockPortReleased": true,
+      "egressDenied": 0,
+      "logOverflow": false
+    },
+    "scope": "INSTALLED_BUILT only; approval bypass unchanged; source fixture not repeated",
+    "testedControllerSha256": "3358d175b7e00a42278870694eea9f5284137975aea4663861b037d8c2f70042"
+  },
+  "limits": [
+    "Original full native run failed disconnect; later simplified multiround successes do not close C13",
+    "No atomic filesystem/Host transaction",
+    "Legacy ledger cannot reconstruct historical inode identity",
+    "Node25 native assertion not reproduced or fixed",
+    "No token/cost savings claim; C05/C10/C11/C12 remain separate iterations"
+  ],
+  "filesSha256": {
+    "src/cli.mjs": "fee5304fe0a10d0d378f77c78775ebdb80f2db292413e958fd273571a118ebe7",
+    "src/controller.mjs": "08990a6124ca87427957ea0cdce42dc8e393d8903ab036adbbd38bfd8a3d3a81",
+    "src/events.mjs": "3ff8b0d8382952edb1787a84ad61725f99f7177f0b87a8eb335c853ff9b81f43",
+    "src/identity.mjs": "1d399e2c03ac2fdd12a589974931e2a3b1dafdcd1d304dcc305a75f873c09ea1",
+    "src/native.mjs": "cb4d28c74c8eef8c8f5a0b7e3328492b9b42ba6f2d53562da8bf86d1d01fe882",
+    "src/setup.mjs": "f8bb0db9fa01d1405250127d1054c5b2d6dcfd82d68b4e72422290dd9190af5a",
+    "src/store.mjs": "b0a0357b80c89ab7f67935e6d6e0ae3e379e028317b4873c185e2d884baa8a7c",
+    "test/cli-safety.test.mjs": "5429c730e1314f69ed77e3859ae54820a44d6e5e4c380ebdb222b74237ae9cc5",
+    "test/controller.test.mjs": "12ed3b592c198c0fee8a584b855795255896c486ef370a75185a4f83f8b70576",
+    "test/events.test.mjs": "fd1e120ba1b2729dcc50f196172214aa0063862d619f0b8c1afb89a1fef0e1d8",
+    "test/helpers/approval-source-fixture.cjs": "dbd4aa30fce4e21d316f7e6b1ffa4ead1b89cf8115733698704ed4027cf659aa",
+    "test/helpers/loopback-only.cjs": "383e79e5e13b88b25ea837ef82d45f2b7dcfe0a41019e6c06373295c8433e42e",
+    "test/helpers/native_fixture.py": "529cc01adb809bf09c3f51fada45c33f8a51c61cd393a9d8fef2e71a086483fc",
+    "test/helpers/windows_job.py": "92186d3cb465eff95544899ad832c14657986e62c83100f675c83d4ec7eb9d1e",
+    "test/identity.test.mjs": "5150d634a369627a44640cd4f484840107dc18b968eeb7762d9e883bdea6c0a8",
+    "test/native/controller.test.mjs": "49cf25d4d995d58c9d3abe03d112ecd8b831b0d4af862794511c183de91abfcd",
+    "test/native-transport.test.mjs": "7d0f6de9d54d5675ebb754f3f85b6f61f635f94748cddba2807e4961563724be",
+    "test/setup.test.mjs": "0d5bb075f15ce54cb73c3f8e56172f7930834d272197a7099dfdec97b52c36e8",
+    "test/store.test.mjs": "3d0e080a6324fe28fcbc764097a7531c8145bd50063ffe2b05638998b731d558",
+    "bin/codex-dsh.mjs": "c2ccf60dc3ba96bb9fad85d06c4bd085718a854591fce8684cde7becd3b05059"
+  },
+  "cancelIsolation": {
+    "rawNewSession": {
+      "status": "PASS",
+      "cancelAckMs": 11,
+      "disconnectObservedMs": 123,
+      "mockRequests": 2,
+      "nativeRunning": false,
+      "terminal": "aborted",
+      "jobActiveAfterCleanup": 0,
+      "portsReleased": true
+    },
+    "freshController": {
+      "status": "PASS",
+      "cancelAckMs": 12,
+      "disconnectObservedMs": 421,
+      "mockRequests": 2,
+      "nativeRunning": false,
+      "terminal": "aborted",
+      "stopState": "STOPPED",
+      "jobActiveAfterCleanup": 0,
+      "portsReleased": true
+    },
+    "initialDiagnosticAttempt": {
+      "status": "HARNESS_ERROR_BEFORE_CANCEL",
+      "mockRequests": 2,
+      "reason": "Misread items-wrapped session list as array; fixed before one permitted retry",
+      "jobActiveAfterCleanup": 0,
+      "portsReleased": true
+    },
+    "unresolved": "Original independent-CLI/multiple-session failure remains unclassified; both simplified multiround samples cancelled successfully, not a root-cause fix"
+  },
+  "mockRequestsThisIteration": 24,
+  "cancelInvestigation": {
+    "status": "C13_UNRESOLVED_SAMPLES_CANCELLED",
+    "originalPersistentLog": {
+      "records": 43,
+      "events": 42,
+      "lastSeq": 41,
+      "lastType": "user/message",
+      "turns": [
+        {
+          "seq": 5,
+          "type": "turn/start",
+          "turn": 1
+        },
+        {
+          "seq": 7,
+          "type": "step/start",
+          "turn": 1
+        },
+        {
+          "seq": 20,
+          "type": "step/start",
+          "turn": 1
+        },
+        {
+          "seq": 23,
+          "type": "turn/end",
+          "turn": 1,
+          "reason": "completed"
+        },
+        {
+          "seq": 25,
+          "type": "turn/start",
+          "turn": 2
+        },
+        {
+          "seq": 27,
+          "type": "step/start",
+          "turn": 2
+        },
+        {
+          "seq": 33,
+          "type": "step/start",
+          "turn": 2
+        },
+        {
+          "seq": 36,
+          "type": "turn/end",
+          "turn": 2,
+          "reason": "completed"
+        },
+        {
+          "seq": 38,
+          "type": "turn/start",
+          "turn": 3
+        },
+        {
+          "seq": 40,
+          "type": "step/start",
+          "turn": 3
+        }
+      ],
+      "turn3Ended": false,
+      "sourceSha256": "3e135ddc720a591b9a6e3f94ba350d5401d017e2a292187beb6cd47b6d7615d6",
+      "sourceUnchanged": true
+    },
+    "variants": [
+      {
+        "variant": "raw-native-multiround",
+        "history": [
+          "BUILD native write",
+          "FIX native edit",
+          "HOLD"
+        ],
+        "outcome": "CANCEL_OBSERVED",
+        "mockRequests": 6,
+        "cancelAckAccepted": true,
+        "cancelRpcMs": 14,
+        "disconnectObservedAfterCancelCallMs": 110,
+        "nativeRunning": false,
+        "turn3End": "aborted",
+        "cleanup": {
+          "jobActiveAfterCleanup": 0,
+          "hostPortReleased": true,
+          "mockPortReleased": true,
+          "egressDenied": 0,
+          "logOverflow": false
+        },
+        "selectedExternalHashesUnchanged": true,
+        "hooksLoaded": [
+          {
+            "file": "packages/api/session-controller/lib/index.js",
+            "hash": "71068257057fab8ffa90045e8724e3464fddc619241c57372d194f3c43d10c70"
+          }
+        ],
+        "traceLimit": "Loop hook targeted unloaded types module; internal object-reference coverage not proven for this variant"
+      },
+      {
+        "variant": "controller-same-object-multiround",
+        "history": [
+          "BUILD native write",
+          "FIX native edit",
+          "HOLD"
+        ],
+        "outcome": "CANCEL_OBSERVED",
+        "mockRequests": 6,
+        "cancelAckAccepted": true,
+        "cancelRpcMs": 14,
+        "disconnectObservedAfterCancelCallMs": 89,
+        "nativeRunning": false,
+        "turn3End": "aborted",
+        "cleanup": {
+          "jobActiveAfterCleanup": 0,
+          "hostPortReleased": true,
+          "mockPortReleased": true,
+          "egressDenied": 0,
+          "logOverflow": false
+        },
+        "selectedExternalHashesUnchanged": true,
+        "hooksLoaded": [
+          {
+            "file": "packages/core/agent-loop/lib/index.js",
+            "hash": "0a83183c619e961df785edb84f769f2aec5bcbea6a1e970c13ac83641ddea682"
+          },
+          {
+            "file": "packages/api/session-controller/lib/index.js",
+            "hash": "71068257057fab8ffa90045e8724e3464fddc619241c57372d194f3c43d10c70"
+          }
+        ],
+        "runtimeReferenceChecks": {
+          "sameAgentAcrossCtorStepRegistryCancel": true,
+          "samePhaseControllerSignalAcrossStepRegistryCancel": true,
+          "heldSignalEqualsCurrentAtTurnEnd": true,
+          "abortedBefore": false,
+          "abortedAfter": true,
+          "heldSignalAbortedAtTurnEnd": true
+        },
+        "stopState": "STOP_PENDING",
+        "stopDiagnosticCode": "STOP_ACTIVITY_UNRESOLVED",
+        "testedControllerSha256": "2cbadd1edba31672f1ffc99ab2d75e82e2ced58f17f4d50289370eebe3fb18db"
+      }
+    ],
+    "realProviderRequests": 0,
+    "mockRequests": 12,
+    "limits": [
+      "Both variants used same Controller object for BUILD/FIX/HOLD; original separate-CLI/multiple-session failure was not reproduced.",
+      "Controller variant used experimental pre-cancel session/list RPC, so its success does not prove the original unmodified cancellation path.",
+      "Raw variant only loaded session-controller trace; loop trace coverage missing because original hook targeted non-exported lib/types module.",
+      "Controller variant corrected hook to exported built lib/index.js; complete runtime trace covers this successful sample only.",
+      "No full matrix, retry, or third native run performed. Original failure remains unresolved."
+    ],
+    "decision": "Stop extending matrix; preserve original independent-CLI/multiple-session failure. Add safe stop receipt without changing native stop assertions or external installation."
+  },
+  "stopReceipt": {
+    "fields": [
+      "id",
+      "startedAt",
+      "endedAt",
+      "scope",
+      "phase",
+      "failedPhase",
+      "cancelRequested",
+      "cancelAck",
+      "before",
+      "after"
+    ],
+    "scope": "Latest task-level attempt, not a per-caller immutable history",
+    "beforeNativeRunning": null,
+    "preCancelNativeListAdded": false,
+    "terminalStateReasonAndReceiptGuardedByAttemptId": true,
+    "rawNativeErrorOrCredentialPersisted": false,
+    "nativeAssertionsRelaxed": false,
+    "nativeRecheckAfterFinalLocalRevision": false,
+    "independentReview": "PASS_DELTA_REVIEW_NO_REMAINING_RECEIPT_BLOCKERS",
+    "reviewLimits": [
+      "Read-only code/case/author-receipt review; no duplicate test execution",
+      "Existing watcher-close exception boundary unchanged",
+      "Original C13 cancellation failure not fixed or closed"
+    ]
+  },
+  "handoffChecks": {
+    "cliHelp": "PASS",
+    "diffWhitespace": "PASS",
+    "localFileLinks": 29,
+    "missingLocalLinks": 0,
+    "packageDryRunFileCount": 22,
+    "privateReportIncludedInPackage": false,
+    "originalUserReportUnchanged": true,
+    "released": false,
+    "personalSkillUpdated": false
+  }
+}

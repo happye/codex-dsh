@@ -2,7 +2,7 @@
 
 让当前 Codex 对话通过原生接口发送任务、接收结果、检查状态，再安排下一轮。DSH 继续使用完整原生 Harness；控制器不提供模型代理、不重新实现工具执行器。
 
-版本：0.1.1，提供通用初始化和跨项目共享连接。[验证范围](docs/validation.md)单独记录。
+版本：0.1.2版。提供原生工作区、版本化任务合同、执行证据回执、增量观察与原生用量导出；最终验收结果与限制以[验证范围](docs/validation.md)为准。
 
 ## 一句话开始
 
@@ -33,8 +33,12 @@ setup 自动安装个人全局 Skill、记录工具当前路径、创建私有�
 
 ```sh
 codex-dsh connections
-codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --task demo
-codex-dsh send --task demo --text-file PROMPT_FILE --allow-model --wait 60
+codex-dsh tasks --connection native --cwd PROJECT_ABSOLUTE_PATH
+codex-dsh recover --connection native --cwd PROJECT_ABSOLUTE_PATH --title EXACT_TITLE
+codex-dsh workspace --connection native --cwd PROJECT_ABSOLUTE_PATH
+codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --workspace WORKSPACE_ID --task demo
+codex-dsh contract --task demo --file CONTRACT_JSON
+codex-dsh send --task demo --text-file PROMPT_FILE --contract-sha CONTRACT_SHA256 --allow-model --wait 60
 codex-dsh status --task demo
 codex-dsh follow --task demo --wait 60
 codex-dsh resume --task demo
@@ -45,7 +49,11 @@ codex-dsh stop --task demo
 
 start 默认创建任务专属原生会话；附加已有会话使用共享停止语义。JSON 返回状态及完整答复的 resultFile，Codex 读取答复和实际交付物后决定下一轮。COMPLETED 仅代表该轮次结束，不代表项目验收通过。
 
-同一任务默认持续同一 DSH 会话；换 Codex 聊天后说“继续任务 TASK_ID，沿用原账本和会话，先恢复核对”。指定会话若已绑定，查出原 task 后执行 `resume/status`，不要再 start；仅未绑定时才用 `start --session SESSION_ID`，控制器不会自动查找并复用旧 task。`--state-dir` 不是项目目录，当前 CLI 没有 workspace 命令；目录、权限与真实 Git 须先核对，流程见 [Codex 手册](docs/manuals/codex-guide.md#resume-session)。
+继续任务可直接recover --task ID。按连接/目录/精确标题恢复时，只选该账本已绑定且唯一匹配的任务；多个候选返回AMBIGUOUS_TASK和候选ID，不按标题猜、不新建或重投。--active只筛选可观察的原生运行或未决请求，不表示项目目标完成。
+
+附加、恢复和发送前校验原生header里的真实cwd与任务绑定目录。目录缺失、不可解析或身份不同会拒绝，旧账本也要重核；控制器需能访问同一文件系统目录。路径核验不是写入沙箱，不限制显式合同允许的独立实施树，也不能代替Git基线和允许文件核对。内部或未知原生错误即使返回错误帧，也不会被当成“肯定没执行”；安全diagnostic帮助判断，未知提交仍禁止自动重投。
+
+同一任务默认持续同一 DSH 会话；换 Codex 聊天后说“继续任务 TASK_ID，沿用原账本和会话，先恢复核对”。指定会话若已绑定，查出原 task 后执行 `resume/status`，不要再 start；仅未绑定时才用 `start --session SESSION_ID`，控制器不会自动查找并复用旧 task。`--state-dir` 不是项目目录。`workspace` 可列出或注册原生工作区，`start --workspace` 只为新建会话指定工作区；旧 session 不会迁移。目录、权限与真实 Git 须先核对，流程见 [Codex 手册](docs/manuals/codex-guide.md#resume-session)。
 
 协作工具仓库与目标项目是两个独立 Git 仓库；改动、验收、提交和推送分别核对各自的 Git 根、分支与授权。一个仓库的提交不能代表另一个仓库已交付。具体以 Codex 负责 Git 的合同为准。
 
@@ -59,9 +67,11 @@ start 默认创建任务专属原生会话；附加已有会话使用共享停�
 
 - [用户手册](docs/manuals/user-guide.md)：日常协作、费用、停止和故障处理。
 - [Codex 手册](docs/manuals/codex-guide.md)：命令、状态、审批和循环决策。
+- [合同与证据手册](docs/manuals/contracts.md)：合同 JSON、修订、测试职责、readiness 与回执复用。
 - [流程图与技术说明](docs/architecture.md) · [Mermaid 源文件](docs/architecture.mmd)。
 - [协作 Skill](.agents/skills/codex-dsh-collab/SKILL.md) · [验证范围](docs/validation.md)。
-- [已知问题与迭代记录](docs/validation.md#known-issues)：唯一长期待办入口，含目录校验缺口、工作区能力及真实工程闭环待验；有限业务试用与 mock 验收分开记录。
+- [已知问题与迭代记录](docs/validation.md#known-issues)：唯一长期待办入口，含当前验收边界与有限工程实测；真实业务、工程样本与 mock 验收分开记录。
+- [0.1.2 本轮迭代](docs/iterations/2026-10-22-0.1.2.md)：合同、证据、增量观察、工作区与用量；历史结果不冒充本轮重测。
 
 ```powershell
 npm test

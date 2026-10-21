@@ -1,0 +1,566 @@
+{
+  "date": "2026-10-22",
+  "version": "0.1.2",
+  "status": "PASS_BOUNDED_NATIVE_CONTROLLER_REGRESSION",
+  "realProviderRequests": 0,
+  "owner": "Codex primary agent",
+  "tests": {
+    "fullSuite": {
+      "passed": 134,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 84613.6702,
+      "command": "npm test",
+      "logSha256": "45537fee29471ecf7df65b89cc3fec375ce235ca21c1d8bcb739584cbe9a5231",
+      "scope": "Full run before the final send/run stop barrier delta; historical source fingerprints retained",
+      "sourceSha256": {
+        "src/controller.mjs": "606f73d9f9936f8cdc496a926fca92163a73f44cea3425212da65978f9c32e60",
+        "test/controller.test.mjs": "de47f024ba0ff2668d2c505435471ca40d8de2e9bdee8601055e02acf9fc214a",
+        "test/contract.test.mjs": "da36f451e26cafb2c2eccf8e5fbe8349d4c31fd75e8c7623348d20614bfd1bcb",
+        "src/contract.mjs": "16ac293d8b07aed345d7a34ad25b65f65746286b1a025718eefe6a6bcf4a5f40",
+        "test/native/approval-listen.test.mjs": "24aae3d28f145c1e5b22653f7166bdbc1c2e472b78b832f2413ef6ad60abb2c7"
+      }
+    },
+    "finalAffectedSuite": {
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 95160.604,
+      "command": "node --test test/controller.test.mjs test/contract.test.mjs test/eol.test.mjs",
+      "logSha256": "a5b89423e55fe803fd4937f5a8ee79f3c946814f7a916a510d80e06e4474368a",
+      "reason": "Final send/run initiation is ordered atomically with the stop flag; NOT_STARTED execution receipt added",
+      "reusedUnchangedCases": 63,
+      "currentCaseCoverage": 136,
+      "freshFullSuiteForFinalSource": false
+    },
+    "cliCheck": "PASS",
+    "independentReview": "PASS_NO_REMAINING_BLOCKERS",
+    "independentAcceptance": "PASS_READ_ONLY_CURRENT_FINGERPRINTS_OUTPUT_EFFECTS_AND_CLEANUP"
+  },
+  "installedNative": {
+    "mode": "INSTALLED_BUILT",
+    "status": "PARTIAL_LOCAL_MOCK_NATIVE_APPROVAL_BLOCKED",
+    "checksPassed": 50,
+    "checks": [
+      {
+        "name": "native Host reports the explicitly selected executable and immutable runtime",
+        "passed": true
+      },
+      {
+        "name": "setup authenticates native Host in isolated CODEX_HOME",
+        "passed": true
+      },
+      {
+        "name": "setup selects personal shared state inside fixture",
+        "passed": true
+      },
+      {
+        "name": "setup installs unchanged portable Skill body",
+        "passed": true
+      },
+      {
+        "name": "generated local settings locate tool and shared ledger",
+        "passed": true
+      },
+      {
+        "name": "generated local settings exclude native token and cookie",
+        "passed": true
+      },
+      {
+        "name": "another working directory discovers setup connection without state flag",
+        "passed": true
+      },
+      {
+        "name": "CLI registers native workspace and reads its canonical path back",
+        "passed": true
+      },
+      {
+        "name": "profile start creates native session without explicit state directory",
+        "passed": true
+      },
+      {
+        "name": "native workspace membership contains the created session",
+        "passed": true
+      },
+      {
+        "name": "native bound task discovery confirms directory and exact title projection",
+        "passed": true
+      },
+      {
+        "name": "unique recovery uses original native session without model dispatch",
+        "passed": true
+      },
+      {
+        "name": "isolated wrong-directory ledger authenticates without changing native session",
+        "passed": true
+      },
+      {
+        "name": "existing native session rejects wrong directory attachment",
+        "passed": true
+      },
+      {
+        "name": "persisted wrong directory cannot dispatch prompt",
+        "passed": true
+      },
+      {
+        "name": "profile send from different directory completes native turn",
+        "passed": true
+      },
+      {
+        "name": "profile status recovers same session and request from original directory",
+        "passed": true
+      },
+      {
+        "name": "profile reply remains available in shared ledger",
+        "passed": true
+      },
+      {
+        "name": "repeated setup preserves existing native request ledger",
+        "passed": true
+      },
+      {
+        "name": "connections exposes existing task locator across projects",
+        "passed": true
+      },
+      {
+        "name": "cross-directory profile use never creates cwd fallback ledgers",
+        "passed": true
+      },
+      {
+        "name": "product attach authenticates full native Host",
+        "passed": true
+      },
+      {
+        "name": "product creates native exclusive session",
+        "passed": true
+      },
+      {
+        "name": "native write completes via product CLI",
+        "passed": true
+      },
+      {
+        "name": "Codex reads native write artifact",
+        "passed": true
+      },
+      {
+        "name": "independent follow recovers completed request",
+        "passed": true
+      },
+      {
+        "name": "separate CLI process recovers persisted request ID",
+        "passed": true
+      },
+      {
+        "name": "resume never resends completed prompt",
+        "passed": true
+      },
+      {
+        "name": "second native edit completes",
+        "passed": true
+      },
+      {
+        "name": "Codex acceptance observes second-round edit",
+        "passed": true
+      },
+      {
+        "name": "usage exports four correlated native model steps without private text or redispatch",
+        "passed": true
+      },
+      {
+        "name": "summary selects the latest request and retains full result asset reference",
+        "passed": true
+      },
+      {
+        "name": "unchanged generation suppresses repeated request output without resubmission",
+        "passed": true
+      },
+      {
+        "name": "second native session exists on same shared Host",
+        "passed": true
+      },
+      {
+        "name": "multiple bound native tasks require explicit selection without dispatch",
+        "passed": true
+      },
+      {
+        "name": "observation timeout does not mark completion",
+        "passed": true
+      },
+      {
+        "name": "observation timeout leaves provider connected",
+        "passed": true
+      },
+      {
+        "name": "stop retains STOP_PENDING after observed native tools",
+        "passed": true
+      },
+      {
+        "name": "stop interrupts owned provider stream",
+        "passed": true
+      },
+      {
+        "name": "another native session remains accessible",
+        "passed": true
+      },
+      {
+        "name": "another session can still execute native prompt after stop",
+        "passed": true
+      },
+      {
+        "name": "authenticated native UI root remains HTTP 200",
+        "passed": true
+      },
+      {
+        "name": "every completed request retains native turn association",
+        "passed": true
+      },
+      {
+        "name": "explicit state-directory scenario preserves separate personal ledger",
+        "passed": true
+      },
+      {
+        "name": "CLI binds immutable task contract to the native session and actual Git baseline",
+        "passed": true
+      },
+      {
+        "name": "stale contract hash rejects native prompt with zero provider requests",
+        "passed": true
+      },
+      {
+        "name": "repo-full cannot start before frozen readiness",
+        "passed": true
+      },
+      {
+        "name": "test capture stores original bytes and reuses identical verified result",
+        "passed": true
+      },
+      {
+        "name": "receipt rechecks actual source and immutable output assets",
+        "passed": true
+      },
+      {
+        "name": "current review and source readiness permits the single owned full run",
+        "passed": true
+      }
+    ],
+    "mockRequests": 8,
+    "realProviderRequests": 0,
+    "wallSeconds": 32.545,
+    "runtime": {
+      "version": "v24.19.0",
+      "undici": "7.29.0",
+      "executableSha256": "3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237"
+    },
+    "cleanup": {
+      "jobActiveAfterCleanup": 0,
+      "hostPortReleased": true,
+      "mockPortReleased": true,
+      "egressDenied": 0,
+      "logOverflow": false,
+      "hostExecutableUnchanged": true,
+      "selectedNativeFilesUnchanged": true
+    },
+    "nativeBundleSha256": {
+      "apps/cli/lib/bin.js": "c5d895baab14abe0a24bdd57d08511adb48646a0f34875fed4da3b69a3a4f5dc",
+      "packages/interaction/user-approval/lib/index.js": "dae8bf34f3d523beaeee5670d7c7c10c0e08e665eae203471da4c92fd16fd718",
+      "packages/sandbox/sandbox/lib/index.js": "4f95f280f19aad61ae4de64f7767ce4709169461ef507d8cedbeee2ea90cb89b",
+      "packages/api/session-controller/lib/index.js": "71068257057fab8ffa90045e8724e3464fddc619241c57372d194f3c43d10c70",
+      "packages/core/agent-loop/lib/index.js": "0a83183c619e961df785edb84f769f2aec5bcbea6a1e970c13ac83641ddea682",
+      "packages/llm/llm-deepseek/lib/index.js": "7dc87f0f0e3c53acd439410769014a51af8fb560eb3ff0cbd957acebbbdc85cb"
+    },
+    "requestStates": [
+      "COMPLETED",
+      "COMPLETED",
+      "ABORTED"
+    ],
+    "providerStreamDisconnected": true,
+    "cliRuntimeConsistent": true
+  },
+  "sourceApprovalListener": {
+    "mode": "SOURCE_FIXTURE",
+    "status": "PASS_LOCAL_MOCK_APPROVAL_LISTEN",
+    "checksPassed": 25,
+    "checks": [
+      {
+        "name": "Host runtime reports the explicitly selected executable",
+        "passed": true
+      },
+      {
+        "name": "isolated CLI ledger authenticates the native fixture",
+        "passed": true
+      },
+      {
+        "name": "REJECT: new exclusive native session has an explicit title",
+        "passed": true
+      },
+      {
+        "name": "REJECT: initial JSONL lease remains alive before send",
+        "passed": true
+      },
+      {
+        "name": "REJECT: separate send submits without taking the listener lease",
+        "passed": true
+      },
+      {
+        "name": "REJECT: pending approval is valid while JSONL listener stays alive",
+        "passed": true
+      },
+      {
+        "name": "REJECT: another CLI process queues rejected",
+        "passed": true
+      },
+      {
+        "name": "REJECT: listener reports completed native turn before clean exit",
+        "passed": true
+      },
+      {
+        "name": "REJECT: final JSONL explicitly closes its approval lease",
+        "passed": true
+      },
+      {
+        "name": "REJECT: closed approval cannot be reused",
+        "passed": true
+      },
+      {
+        "name": "REJECT: listener delivered the queued result through native broker",
+        "passed": true
+      },
+      {
+        "name": "REJECT: completion is associated with native write tool and turn",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: new exclusive native session has an explicit title",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: initial JSONL lease remains alive before send",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: separate send submits without taking the listener lease",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: pending approval is valid while JSONL listener stays alive",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: another CLI process queues allowed-once",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: listener reports completed native turn before clean exit",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: final JSONL explicitly closes its approval lease",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: closed approval cannot be reused",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: listener delivered the queued result through native broker",
+        "passed": true
+      },
+      {
+        "name": "ALLOW: completion is associated with native write tool and turn",
+        "passed": true
+      },
+      {
+        "name": "approval actions use distinct native sessions",
+        "passed": true
+      },
+      {
+        "name": "rejected native write produced no artifact",
+        "passed": true
+      },
+      {
+        "name": "allowed native write has exactly version 1 content",
+        "passed": true
+      }
+    ],
+    "mockRequests": 4,
+    "realProviderRequests": 0,
+    "wallSeconds": 18.526,
+    "runtime": {
+      "version": "v24.19.0",
+      "undici": "7.29.0",
+      "executableSha256": "3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237"
+    },
+    "cleanup": {
+      "jobActiveAfterCleanup": 0,
+      "hostPortReleased": true,
+      "mockPortReleased": true,
+      "egressDenied": 0,
+      "logOverflow": false,
+      "hostExecutableUnchanged": true,
+      "selectedNativeFilesUnchanged": true
+    },
+    "nativeBundleSha256": {
+      "apps/cli/lib/bin.js": "c5d895baab14abe0a24bdd57d08511adb48646a0f34875fed4da3b69a3a4f5dc",
+      "packages/interaction/user-approval/lib/index.js": "dae8bf34f3d523beaeee5670d7c7c10c0e08e665eae203471da4c92fd16fd718",
+      "packages/sandbox/sandbox/lib/index.js": "4f95f280f19aad61ae4de64f7767ce4709169461ef507d8cedbeee2ea90cb89b",
+      "packages/api/session-controller/lib/index.js": "71068257057fab8ffa90045e8724e3464fddc619241c57372d194f3c43d10c70",
+      "packages/core/agent-loop/lib/index.js": "0a83183c619e961df785edb84f769f2aec5bcbea6a1e970c13ac83641ddea682",
+      "packages/llm/llm-deepseek/lib/index.js": "7dc87f0f0e3c53acd439410769014a51af8fb560eb3ff0cbd957acebbbdc85cb"
+    },
+    "allCliJobsEmpty": true
+  },
+  "originalFinalCampaignRuns": {
+    "installedBeforeLastDelta": {
+      "status": "PARTIAL_LOCAL_MOCK_NATIVE_APPROVAL_BLOCKED",
+      "checksPassed": 50,
+      "mockRequests": 8,
+      "reasonForAffectedRepeat": "Production send/run stop barrier changed after this run"
+    },
+    "approvalLauncherFailure": {
+      "status": "FAIL_BOUNDARY_OR_CLEANUP",
+      "failure": "attach returns bounded JSON",
+      "mockRequests": 0,
+      "jobActiveAfterCleanup": 0,
+      "hostPortReleased": true,
+      "mockPortReleased": true,
+      "originalRetained": true,
+      "correction": "Explicit UTF-8 binary pipe protocol and bounded private stderr capture; no-Host launcher under forced cp936 passed before affected retry"
+    },
+    "mockRequestsAcrossTheseFourRuns": 20
+  },
+  "cancelRuntimeComparison": {
+    "sourceSha256": "ba7b92ebf2c44453a9e3d1d9dfdf8195262cda1a5e7c7c4e9da6fca08181607d",
+    "sameFrozenInputs": true,
+    "synchronousTrace": false,
+    "variants": [
+      {
+        "node": "v25.5.0",
+        "undici": "7.18.2",
+        "mockRequests": 6,
+        "checksPassed": 17,
+        "persistedThirdTurn": "aborted",
+        "nativeRunning": false,
+        "streamDisconnected": true,
+        "jobActiveAfterCleanup": 0
+      },
+      {
+        "node": "v24.19.0",
+        "undici": "7.29.0",
+        "mockRequests": 6,
+        "checksPassed": 17,
+        "persistedThirdTurn": "aborted",
+        "nativeRunning": false,
+        "streamDisconnected": true,
+        "jobActiveAfterCleanup": 0
+      }
+    ],
+    "realProviderRequests": 0,
+    "historicalFailureCauseProved": false
+  },
+  "usageReadOnlyRecompute": {
+    "kind": "READ_ONLY_PERSISTED_HISTORY",
+    "realProviderRequests": 0,
+    "sourceSha256": "4d2762ace8f328dbcb27738bf346ea5dbc5d1d3794a4797b422b006aa0aae871",
+    "sourceUnchanged": true,
+    "historyCursor": 1277,
+    "sampleCount": 184,
+    "status": "complete",
+    "totals": {
+      "uncachedInputTokens": 722333,
+      "cacheReadTokens": 93150464,
+      "cacheWriteTokens": 0,
+      "outputTokens": 289146,
+      "totalInputTokens": 93872797,
+      "totalTokens": 94161943
+    },
+    "coverage": {
+      "uniqueEvents": 1278,
+      "usageEvents": 186,
+      "selectedEvents": 184,
+      "unassociatedEvents": 0,
+      "excludedEvents": 2,
+      "historyStartsAtZero": true
+    },
+    "turns": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "missingUsageCount": 0,
+    "inconsistentCount": 0,
+    "expected": {
+      "uncachedInputTokens": 722333,
+      "cacheReadTokens": 93150464,
+      "cacheWriteTokens": 0,
+      "outputTokens": 289146,
+      "totalInputTokens": 93872797,
+      "totalTokens": 94161943
+    },
+    "matches": true
+  },
+  "finalSourceSha256": {
+    "src/events.mjs": "3ff8b0d8382952edb1787a84ad61725f99f7177f0b87a8eb335c853ff9b81f43",
+    "test/usage.test.mjs": "e0a1308e9a04daf4251ba85feb20585eb674248e1b8639e2d4208896f25e024d",
+    "src/pytest-reporter.py": "4f711d28f0ebf43b3f34f407202ef0da652d004ae6e893e24f8029a5fdf579cc",
+    "src/controller.mjs": "ec2a764cd63ca59f91f46474700ae699c3e7bb86c6b429edca6d07daf92e2bd7",
+    "test/setup.test.mjs": "0d5bb075f15ce54cb73c3f8e56172f7930834d272197a7099dfdec97b52c36e8",
+    "src/identity.mjs": "1d399e2c03ac2fdd12a589974931e2a3b1dafdcd1d304dcc305a75f873c09ea1",
+    "test/cli-safety.test.mjs": "f1dd118b0c50c32605f1f3577b7193d0f4dc91ecf7c686c6c28608036e872cf5",
+    "test/controller.test.mjs": "0002f5fb9b303d92fcd8348c33bf7f7fd2755246821fbe4fa6ed23dccf773c0d",
+    "src/store.mjs": "0f3cc4f533cb1e97fdedb995255d352cf532614cdeef372d0ceac78630dca154",
+    "src/execution.mjs": "9715bebe068acd3f3b8ef47c83845a3ec221f100c0edb19672c262033148e34c",
+    "test/workspace.test.mjs": "8e9cecbe331a68cfcdbdecb1a347c6af108b0fc61639a0ba12323c62375bf225",
+    "src/setup.mjs": "f8bb0db9fa01d1405250127d1054c5b2d6dcfd82d68b4e72422290dd9190af5a",
+    "bin/codex-dsh.mjs": "c2ccf60dc3ba96bb9fad85d06c4bd085718a854591fce8684cde7becd3b05059",
+    "test/helpers/native_fixture.py": "2be18f86bf7be223349c551336254256afcee5fb14d767c16ceb96593209174e",
+    "test/helpers/approval-source-fixture.cjs": "dbd4aa30fce4e21d316f7e6b1ffa4ead1b89cf8115733698704ed4027cf659aa",
+    "test/contract.test.mjs": "0e0662e053d2cfb7a6132eba5799de9e815f20d2acc2a3b87f8183553dbe03f4",
+    "test/native/controller.test.mjs": "0c9b30d327d6dfa9744cfe74439c88249d6f5134c4e1b7ee09b23f7c6a2b63ef",
+    "test/native-transport.test.mjs": "7d0f6de9d54d5675ebb754f3f85b6f61f635f94748cddba2807e4961563724be",
+    "test/helpers/loopback-only.cjs": "383e79e5e13b88b25ea837ef82d45f2b7dcfe0a41019e6c06373295c8433e42e",
+    "src/cli.mjs": "04644893b22cdd111589a85d2fa8572bb3ece812c64b0f1aa54d6fc6a7e6365d",
+    "test/store.test.mjs": "3d0e080a6324fe28fcbc764097a7531c8145bd50063ffe2b05638998b731d558",
+    "test/identity.test.mjs": "5150d634a369627a44640cd4f484840107dc18b968eeb7762d9e883bdea6c0a8",
+    "test/helpers/runtime-record.cjs": "ac2bf61461623a0b8e8171f2c397c73859418b70a17aa01ca8e2e7c5f607915b",
+    "src/contract.mjs": "4b94cbb3aba669ca85652d3e988f98bbb7f440a95fd6a1068ceb8c9ee9e23f49",
+    "src/native.mjs": "cb4d28c74c8eef8c8f5a0b7e3328492b9b42ba6f2d53562da8bf86d1d01fe882",
+    "test/execution.test.mjs": "4cae1a3bede10df1110e65e7a6c7abd144d91c0d126775e57b933c1323eb5fb2",
+    "src/view.mjs": "657e0c870c26fa0ed31ecc54cfc798922483e8cfd5bc0ac8551223b44a05849d",
+    "test/eol.test.mjs": "e2c23db43dab56c0ad160a66e3112f2810d20dd620b483ef5b559863645781c5",
+    "test/native/approval-listen.test.mjs": "1d4aedba452cfe5b0d9c89fcecc497ba3ed2dd8e0287de34e9477618d841147e",
+    "test/helpers/windows_job.py": "92186d3cb465eff95544899ad832c14657986e62c83100f675c83d4ec7eb9d1e",
+    "test/view.test.mjs": "1d822e000703cf94e36a9938536987f52d7a7da8a252b130f1415cd78ed31d4d",
+    "src/workspace.mjs": "4f32ec69237605d1300e765296fe4ff3e6fc7e691a55e58a0948e7d51fb387c6",
+    "src/usage.mjs": "d72927831a06bbaa966533e6a1a7fd9052685ee10d5cde96259042ef6164fd6f",
+    "test/events.test.mjs": "fd1e120ba1b2729dcc50f196172214aa0063862d619f0b8c1afb89a1fef0e1d8"
+  },
+  "release": {
+    "personalSkillUpdated": true,
+    "sameSkillAndMetadataBytes": true,
+    "existingLedgerUnchanged": true,
+    "publicationPolicy": "Explicit allowlist; private input and historical raw records excluded",
+    "packedInstall": {
+      "status": "PASS_PACKED_INSTALL_WITH_SPACES_CROSS_CWD",
+      "files": 31,
+      "providerRequests": 0,
+      "newAssetsByteIdentical": true,
+      "privatePayloadExcluded": true
+    },
+    "localFileLinks": {
+      "count": 48,
+      "missing": 0
+    }
+  },
+  "limits": [
+    "Installed native approval remains bypassed; source fixture does not alter installation",
+    "STOP_PENDING remains conservative after tools or unproved descendant/background activity",
+    "Historical cancellation failure retained; root cause not proved",
+    "No official maximum context load test or all-native-feature parity proof",
+    "No Codex-side total usage or paired total-cost comparison",
+    "No permanent controller while Codex is inactive; no cross-state global locking",
+    "No OS sandbox, arbitrary descendant containment, or automatic candidate merge transaction"
+  ]
+}

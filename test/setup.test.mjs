@@ -141,12 +141,14 @@ test('setup upgrades a previously installed repository Skill without local setti
   assert.equal(result.code, 0, result.error);
   assert.equal(await fs.readFile(path.join(f.paths.skillDir, 'custom.txt'), 'utf8'), 'keep');
 });
-test('authentication failure prints only a code and does not publish credentials', async t => {
+test('authentication failure prints a safe diagnostic and does not publish credentials', async t => {
   const f = await fixture(t), tokenFile = path.join(f.root, 'token'); await fs.writeFile(tokenFile, 'private-rejected-token');
   const server = http.createServer((req, res) => { res.writeHead(403); res.end('private-rejected-token'); });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise(resolve => server.close(resolve)));
   const result = await f.cli(['setup', '--url', `http://127.0.0.1:${server.address().port}`, '--token-file', tokenFile]);
-  assert.equal(result.code, 4); assert.equal(result.output, ''); assert.equal(result.error, '{"error":"AUTH_REJECTED"}\n');
+  assert.equal(result.code, 4); assert.equal(result.output, '');
+  assert.deepEqual(JSON.parse(result.error), { error: 'AUTH_REJECTED', diagnostic: { stage: 'auth', category: 'authentication', knownRejected: true, httpStatus: 403 } });
+  assert.ok(!result.error.includes('private-rejected-token'));
   await assert.rejects(fs.stat(f.paths.profilePath), { code: 'ENOENT' });
 });

@@ -14,24 +14,34 @@
 | --- | --- |
 | setup --url URL [--name native] [--token-stdin 或 --token-file FILE] | 安装原样个人Skill，自动生成非秘密定位配置和私有账本；首次鉴权或更新失效凭证 |
 | connections | 列出连接名、Host及任务定位元数据；不输出cookie，不等于Host在线检查 |
+| tasks --connection NAME [--cwd ABSOLUTE] [--title EXACT_TITLE] [--active] | 联结同Host已绑定任务与原生目录/标题/活动线索；不派发，可更新本地观察账本，不自动绑定未绑定会话 |
+| recover --task ID | 核目录并恢复同一任务，不创建或重投 |
+| recover --connection NAME [--cwd ABSOLUTE] [--title EXACT_TITLE] [--active] | 唯一候选才恢复；零候选TASK_NOT_FOUND，多候选AMBIGUOUS_TASK及候选ID |
 | attach --name NAME --url URL --token-stdin | 读取一行本地令牌，附加现有原生 Host |
-| start --connection NAME --cwd ABSOLUTE --task ID | 创建原生任务会话；可选 --title TITLE |
+| workspace --connection NAME [--cwd ABSOLUTE] | 无 cwd 时列出原生工作区；有 cwd 时注册并读回核验 |
+| start --connection NAME --cwd ABSOLUTE --task ID [--workspace ID] | 创建原生任务会话；可选 --title TITLE；workspace 须与 cwd 匹配 |
 | start ... --session SESSION_ID | 附加已有会话，按 shared 处理停止 |
-| send --task ID --text-file FILE --allow-model --wait 60 | 持久化意图后发原生 prompt，同时观察 |
+| send --task ID --text-file FILE --allow-model [--contract-sha SHA256] --wait 60 | 持久化意图后发原生 prompt；工程任务绑定合同 hash |
 | status --task ID | 读原生历史并协调 |
 | resume --task ID | 恢复观察，不重放 prompt |
 | follow --task ID --wait 60 | 打开原生事件/审批观察窗口 |
 | approvals --task ID | 查看本地已接收的有效审批 |
 | approve --task ID --approval EVENT_ID --decision allowed-once | 排队单次许可；拒绝用 rejected |
-| stop --task ID | 阻止新派发并尝试限定范围停止 |
+| stop --task ID | 阻止新 send/run/审批并尝试限定范围停止 |
+| contract --task ID [--file CONTRACT_JSON] | 无 file 时检查当前合同；有 file 时绑定首版或修订 |
+| run --task ID --contract-sha SHA256 --case CASE_ID --owner OWNER [--rerun-reason REASON] | 按合同运行或复用本地测试 |
+| receipt --task ID --run RUN_ID | 重新核验回执、原始证据与当前指纹 |
+| readiness --task ID --contract-sha SHA256 --review-file REVIEW_JSON | 定向证据有效且 blockers 为空后放行全量 |
+| listen --task ID [--wait 60] | JSONL 增量观察并保持有效审批 lease；上限 60 秒 |
+| usage --task ID | 导出本任务原生用量，不含消息正文 |
 
-JSON 输出。退出码 0 表示命令成功/取得状态，**不表示任务完成**；2 参数错误，3 状态或冲突，4 通信/原生失败。读取 state、requests、observationTimedOut、stopReason 和 resultFile，而非只看退出码。
+JSON 输出。退出码 0 表示命令成功/取得状态，**不表示任务完成**；2 参数错误，3 状态或冲突，4 通信/原生失败。读取 state、requests、observationTimedOut、stopReason 和 resultFile，而非只看退出码；停止诊断另看 stopAttempt、stopDiagnostic。
 
 ## 循环执行
 
 1. 明确目标、允许目录、验收标准、现有未提交修改和费用授权。对真实工程按其合同选择隔离工作树；不要把新原生会话当文件沙箱。工具不会自动复制或接收改动。
-2. 新任务在连接后 start，记录任务 ID、sessionId、状态目录、真实项目根和 Git 基线。同一任务默认持续使用同一个原生 session；换 Codex 聊天先用原 task 执行 resume/status，不重复 start，也不自动创建新 DSH session。`connections` 只能列本地已绑定 task/cwd/session 元数据，不会按原生标题搜索或替你判断唯一活动任务。
-3. 把具体工作合同写入提示文件，经 send 提交。--allow-model 只能在已有任务和费用授权内使用，不能据它扩大范围。
+2. 新任务在连接后start，记录任务ID、sessionId、状态目录、真实项目根和Git基线。同一任务持续使用原生session；换聊天先recover --task或resume/status，不重复start。忘记task时，用tasks按连接、目录、精确标题筛选，再recover唯一候选；有歧义时选具体ID，不猜。connections仍只列本地定位元数据。
+3. 真实工程先按[合同与证据手册](contracts.md)准备 JSON，以 contract --file 绑定，再用 send --contract-sha 返回的 SHA256 派发。首个已确认使用该 hash 的请求附完整合同，后续带合同引用及本轮增量；压缩或上下文不明时须重读合同资产的 contract 字段。--allow-model 只能在已有任务和费用授权内使用，不能据它扩大范围。
 4. 保持有界观察；超时而未完成则继续 follow，断线则 resume/follow。不要因观察窗口结束取消或重发。审批事件依赖活跃 watcher；若同时等待模型和审批，保持 send --wait / follow 进程运行，通过另一 CLI 进程查询/提交决定。Watcher 不是后台常驻服务；Codex 主控不活跃、聊天关闭或额度耗尽时，不保证自动收发事件或安排下一轮。
 5. 对已匹配本请求的 COMPLETED，读取完整 resultFile，并检查文件、diff 与相关测试。必要时把具体反例发成下一轮新请求；原生 turn 完成不代表用户目标完成。
 6. 每阶段报告目标、DSH 行为、Codex 验收、下一步、已知费用及未验证边界。任务完成、明确受阻或用户停止时结束派发。
@@ -49,7 +59,7 @@ codex-dsh resume --task demo
 codex-dsh status --task demo
 ```
 
-旧任务用了其他账本时，每条命令显式加 `--state-dir STATE_ABSOLUTE_PATH`。这个参数选择控制器账本，不选择 DSH 工作目录。resume 读取原生历史，不重新投递旧 prompt；恢复后仍须检查真实文件、当前活动、允许范围与费用授权，才发送下一轮。当前没有自动选择唯一活动任务的跨聊天恢复指针，任务身份需由交接与账本核对。
+旧任务用了其他账本时，每条命令显式加--state-dir STATE_ABSOLUTE_PATH。该参数不选择DSH工作目录。resume/recover读取历史，不重投旧prompt；恢复后仍须核文件、允许范围和费用授权。tasks/recover只查同Host已绑定任务；标题可改且可缺失，不能作为永久身份。--active为true表示native running或仍有未决请求，false/null不表示产品目标完成。
 
 用户也可以说：“挂靠我指定的已有 DSH 会话 SESSION_ID，在【项目根】继续【目标】，先核对目录、活动和权限。”若该会话已被同一账本绑定，复用原 task 并 resume，不另建 task 重复挂靠。未绑定时，核对原生会话真实 cwd、当前活动及权限后使用：
 
@@ -58,13 +68,19 @@ codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --task demo --se
 codex-dsh status --task demo
 ```
 
-这里的挂靠命令是 `start --session`；`attach` 用于连接 Host，没有 `attach --session`。已有会话按 shared 处理，传入 `--cwd` 不能改变它原来的 cwd。当前 refresh 只核会话 ID、未强制核真实 cwd；核对不一致或无法确认时，不发送工作提示，见 [C02](../validation.md#c02)。
+这里的挂靠命令是start --session；attach用于连接Host。传入cwd不会迁移已有会话。0.1.2开始，附加、refresh、watch和实际派发前核原生header ID、cwd realpath和本地目录身份；缺字段或不一致直接拒绝，旧READY账本也重新核验。旧账本没有历史inode可追溯，首次升级只建立当前可验证身份。目录核验不是原子Host/文件系统锁，不替代允许的execution root、Git HEAD与保护文件检查，见[C02](../validation.md#c02)。
 
 ## 项目根、原生工作区与 Git 职责
 
-新建时控制器调用原生 `session/create`，传入 sessionId 与 cwd；任务元数据记录 cwd。cwd 决定会话工具的工作位置，原生 UI 的 workspace 注册和成员关系是另一项配置。当前 CLI 没有 workspace 命令；原生 `workspace/create`、`session/create(workspaceId)` 能注册工作区，但本轮一次 API 配置与成员读回只证明该配置成功，不是 CLI 普遍修复，也不是浏览器视觉验收。
+`workspace --connection NAME` 从原生 workspace/follow 基线列出工作区；加 `--cwd ABSOLUTE` 注册工作区并核验返回目录和读回结果。使用返回的 workspaceId 新建：
 
-Windows 原生 ensureSession 会比较原始 cwd 字符串。同一路径的斜杠写法不同也曾使 workspace 绑定返回 RPC_REJECTED；新建前用文件系统 realpath 规范路径，并读回目录及成员关系。不能修改旧会话头绕过校验；跨项目或换目录要新建会话，或按用户明确授权的迁移流程核对。UI 显示工作区不证明操作的是预期 Git 仓库，须独立核对仓库根、branch、HEAD 与现有改动。
+```sh
+codex-dsh workspace --connection native --cwd PROJECT_ABSOLUTE_PATH
+codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --workspace WORKSPACE_ID --task demo
+codex-dsh workspace --connection native
+```
+
+控制器用 realpath 核 cwd 与工作区目录身份；新建通过原生 session/create 的 workspaceId，随后检查原生 header 与成员关系。没有 --workspace 时保留 cwd 新建方式。旧 session 的 `start --session` 只附加，不迁移；同时传 --workspace 仅核该 session 已属于这个工作区，不能用它补迁移。不能编辑旧头或账本绕过。CLI 读回不等于浏览器视觉验收，UI 工作区也不能代替 Git 根、branch、HEAD 和允许文件核对。
 
 把 DSH 作为受委派的实施 subagent 职责使用；它仍是完整原生 DSH 会话，并未变成 Codex 原生嵌套 subagent。每轮合同至少包含：
 
@@ -73,7 +89,22 @@ Windows 原生 ensureSession 会比较原始 cwd 字符串。同一路径的斜�
 - `git_owner=Codex`：DSH 在允许文件内实施和验证，保留他人编辑；Git 检查、提交、合并与发布由 Codex 按授权掌握。
 - 返回实际变更、实际运行的验证及结果、产物位置、限制和下一步；未运行的检查明确为未验证。
 
-Codex 读取返回和真实 diff，按合同验收；COMPLETED 不等于验收通过。工程开发的真实“写入→测试→追修→Codex 验收与 Git”闭环仍待验证，不能从本轮只读业务试用推定通过。长期缺陷、功能缺口、待验与能力边界唯一登记在 [已知问题与迭代记录](../validation.md#known-issues)；本地 progress 只保留进度与入口。
+Codex 读取返回和真实 diff，按合同验收；COMPLETED 不等于验收通过。2026-10-21 暮云六轮真实工程已完成一次有限范围的“写入→测试→追修→Codex 独立验收与 Git”闭环，范围见 [工程样本](../validation.md#known-issues)及[后续迭代](../iterations/2026-10-21-0.1.2.md)；不据此推定通用目录门、并发或全部原生功能通过。长期缺陷、功能缺口、待验与能力边界唯一登记在 [已知问题与迭代记录](../validation.md#known-issues)；本地 progress 只保留进度与入口。
+
+## 增量观察与用量
+
+status、resume、follow、send 支持 `--view summary`、`--request latest|REQUEST_ID`、`--since-cursor N`、`--since-generation SHA256`；send 的 request 只允许 latest。默认 summary 选最新请求，counts.requests 仍表示全部请求数。resultFile、resultSha256、resultBytes 用于定位与核验完整答复，摘要不展开正文。保存返回的 cursor 和 generation，下一次继续传入；generation 覆盖本地停止、审批及错误变化，不能只凭原生 cursor 不变跳过处理。changed=false 时 requests 为空，仍检查审批与状态。冷恢复仍读取完整历史协调。
+
+```sh
+codex-dsh status --task demo --view summary --request latest
+codex-dsh follow --task demo --wait 60 --view summary --since-cursor CURSOR --since-generation GENERATION_SHA256
+codex-dsh listen --task demo --wait 60 --request latest
+codex-dsh usage --task demo
+```
+
+listen 输出 JSON Lines，变化时输出摘要，退出前输出 leaseOpen=false。它保持原生活跃 watcher/审批 lease，最多 60 秒，也可能在终态提前退出；不要收到一条消息就结束进程。每 task 只允许一个 watcher；已有 send --wait/follow/listen 时，不再开第二个。通过另一 CLI 进程查询 approvals/approve；lease 关闭或过期后不能沿用旧事件。程序监听不是模型持续推理，也不是永久主控。
+
+usage 使用 `dsh-usage/v1`，只输出计数、关联、完整度和缺失/冲突说明，没有消息、参数或来源正文。inputTokens 对应非缓存输入；totalInputTokens 为非缓存+缓存读+缓存写，cacheReadRatio 分母为 totalInputTokens。只取每次原生采样的末次 usage，不把流中累计中间样本相加；不明关联及缺失不补零，partial/reportedTotals 不冒充完整 totals。范围是当前任务已记录请求对应的单一原生 session，不是双方总账、提供方账单或节省证明。
 
 ## 不明状态和原生审批
 
@@ -83,10 +114,12 @@ SUBMITTING / SUBMISSION_UNKNOWN / UNKNOWN / CREATE_UNKNOWN 不能当作“未执
 
 ## 停止
 
-收到停止先调用 stop，禁止下一轮 send。专属会话使用会话级原生取消；共享会话不盲目取消其他用户轮次。无法证明子任务、后台 job、外来轮次、工具或不明提交静止时报告 STOP_PENDING。不要杀共享 Host、archive、删提醒或宣称整棵工作树已停止。
+收到停止先调用 stop，禁止后续 send、run 和审批决定。专属会话使用会话级原生取消；共享会话不盲目取消其他用户轮次。无法证明子任务、后台 job、外来轮次、工具或不明提交静止时报告 STOP_PENDING。不要杀共享 Host、archive、删提醒或宣称整棵工作树已停止。
+
+0.1.2本地迭代新增stopAttempt，保留最近一次停止尝试的阶段、时间、cancelRequested、cancelAck及前后活动计数；stopDiagnostic使用固定原因码和安全诊断。cancelAck.accepted只表示原生接收取消，不能代替turn/end、running=false或后台静止证明。before.running为null表示未采集取消前的原生列表；诊断不增加取消前的列表查询。并发调用读取的是任务最新尝试，须按id辨认，不把别次尝试的回执当本次私有结果。出现STOP_REQUEST_RUNNING、STOP_CANCEL_UNKNOWN等，保留账本和原生记录，不自动再次取消或重投prompt。
 
 一个 Host 使用同一状态目录：目录内协调连接别名和任务锁，目录间无全局协调。原生 UI 和外部客户端仍能操作会话，所谓 exclusive 是控制器创建的任务用途，不是服务器排他锁。
 
 ## 技术和验证
 
-[技术说明](../architecture.md)解释协议、请求关联和冷快照。 [验证记录](../validation.md)区分当前 installed built、本机模型与源码 fixture。当前实现不提供未知请求的自动人工裁决、模型费用硬上限、生产候选事务合入或原生所有功能的全覆盖保证。
+[技术说明](../architecture.md)解释协议、请求关联和冷快照。 [验证记录](../validation.md)区分当前 installed built、本机模型与源码 fixture。合同 JSON、回执和全量门见[合同与证据手册](contracts.md)。当前实现不提供未知请求/执行意图的自动人工裁决、模型费用硬上限、生产候选事务合入或原生所有功能的全覆盖保证。

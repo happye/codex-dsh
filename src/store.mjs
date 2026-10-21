@@ -62,7 +62,7 @@ export class StateStore {
     finally { await fs.rm(temp, { force: true }); }
     return target;
   }
-  async withLock(name, callback, { timeoutMs = 5000 } = {}) {
+  async acquireLock(name, { timeoutMs = 5000 } = {}) {
     await noLinks(this.directory);
     const lock = this.file(name), deadline = Date.now() + timeoutMs;
     let handle;
@@ -74,19 +74,24 @@ export class StateStore {
         await sleep(25);
       }
     }
-    try {
-      await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() }));
-      return await callback();
-    } finally { await handle.close(); await fs.unlink(lock); }
+    try { await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() })); }
+    catch (error) { await handle.close(); await fs.unlink(lock); throw error; }
+    let released = false;
+    return { release: async () => { if (!released) { released = true; await handle.close(); await fs.unlink(lock); } } };
+  }
+  async withLock(name, callback, options) {
+    const lock = await this.acquireLock(name, options);
+    try { return await callback(); } finally { await lock.release(); }
   }
   async transaction(callback, options) {
     return this.withLock('state.lock', async () => {
-      let state;
-      try { state = JSON.parse(await this.readFile('state.json')); }
+      let state, before;
+      try { before = await this.readFile('state.json'); state = JSON.parse(before); }
       catch (error) { if (error.code !== 'ENOENT') throw error; state = { schema: SCHEMA, connections: {}, tasks: {} }; }
       if (state.schema !== SCHEMA) throw fault('INVALID_STATE_SCHEMA');
       const result = await callback(state);
-      await this.writeFile('state.json', JSON.stringify(state));
+      const after = JSON.stringify(state);
+      if (after !== before) await this.writeFile('state.json', after);
       return result;
     }, options);
   }

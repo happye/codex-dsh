@@ -29,6 +29,9 @@ def events(number, text, tool):
 class Provider:
     def __init__(self):
         self.count, self.records, self.errors = 0, [], []
+        self.limit = int(os.environ.get('E2E_MOCK_MAX_REQUESTS', '40'))
+        if not 1 <= self.limit <= 40:
+            raise ValueError('mock request limit')
         self.lock = threading.Lock()
         self.release = threading.Event()
         self.hold_started = threading.Event()
@@ -57,7 +60,7 @@ class Provider:
                     owner.count += 1
                     number = owner.count
                 try:
-                    if number > 40 or self.path not in ('/v1/messages', '/anthropic/v1/messages') or self.headers.get('x-api-key') != KEY:
+                    if number > owner.limit or self.path not in ('/v1/messages', '/anthropic/v1/messages') or self.headers.get('x-api-key') != KEY:
                         raise ValueError('mock request boundary')
                     length = int(self.headers.get('Content-Length', '-1'))
                     if not 0 <= length <= 8 * 1024 * 1024:
@@ -146,7 +149,13 @@ def worker(run, dsh):
     if source_fixture:
         env.update(E2E_NATIVE_ROOT=str(dsh), E2E_FIXTURE_DIR=str(run))
         source_args = ['--require', str(Path(__file__).with_name('approval-source-fixture.cjs'))]
-    host = subprocess.Popen([shutil.which('node'), '--require', str(guard), *source_args, str(dsh / 'apps/cli/lib/bin.js'), 'web', '--host', '127.0.0.1', '--port', '0', '--no-open'], cwd=run / 'workspace', env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    node = os.environ.get('DSH_NODE_EXECUTABLE')
+    if not node or not Path(node).is_absolute() or not Path(node).is_file():
+        raise RuntimeError('explicit native Node executable required')
+    executable_before = hashlib.sha256(Path(node).read_bytes()).hexdigest()
+    env['E2E_RUNTIME_RECORD'] = str(run / 'host-runtime.json')
+    runtime_recorder = Path(__file__).with_name('runtime-record.cjs')
+    host = subprocess.Popen([node, '--require', str(runtime_recorder), '--require', str(guard), *source_args, str(dsh / 'apps/cli/lib/bin.js'), 'web', '--host', '127.0.0.1', '--port', '0', '--no-open'], cwd=run / 'workspace', env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     log, overflow = bytearray(), threading.Event()
     def collect():
         while chunk := host.stdout.read1(4096):
@@ -166,10 +175,11 @@ def worker(run, dsh):
         time.sleep(.05)
     else:
         raise RuntimeError('isolated native host startup timeout')
-    ready = {'ready': True, 'port': int(match[1]), 'token': match[2].decode(), 'mockPort': mock.server.server_port, 'hostPid': host.pid}
+    runtime = json.loads((run / 'host-runtime.json').read_text(encoding='utf-8'))
+    ready = {'ready': True, 'port': int(match[1]), 'token': match[2].decode(), 'mockPort': mock.server.server_port, 'hostPid': host.pid, 'hostRuntime': runtime}
     print(json.dumps(ready), flush=True)
     sys.stdin.read()  # EOF from supervisor or owner death ends this fixture.
-    (run / 'fixture-result.json').write_text(json.dumps({'provider': mock.snapshot(), 'egressDenied': log.count(b'[e2e-egress-denied]'), 'logOverflow': overflow.is_set(), 'hostPid': host.pid, 'hostPort': ready['port'], 'mockPort': ready['mockPort'], 'executionMode': 'SOURCE_FIXTURE' if source_fixture else 'INSTALLED_BUILT'}))
+    (run / 'fixture-result.json').write_text(json.dumps({'provider': mock.snapshot(), 'egressDenied': log.count(b'[e2e-egress-denied]'), 'logOverflow': overflow.is_set(), 'hostPid': host.pid, 'hostPort': ready['port'], 'mockPort': ready['mockPort'], 'hostRuntime': runtime, 'hostExecutableUnchanged': executable_before == runtime['executableSha256'] == hashlib.sha256(Path(node).read_bytes()).hexdigest(), 'executionMode': 'SOURCE_FIXTURE' if source_fixture else 'INSTALLED_BUILT'}), encoding='utf-8')
     mock.release.set()
     return 0
 
@@ -207,11 +217,11 @@ def supervisor(run, dsh):
         job.close()
         timer.cancel()
         report_file = run / 'fixture-result.json'
-        report = json.loads(report_file.read_text()) if report_file.exists() else {'fixtureIncomplete': True}
+        report = json.loads(report_file.read_text(encoding='utf-8')) if report_file.exists() else {'fixtureIncomplete': True}
         report['jobActiveAfterCleanup'] = active
         report['hostPortReleased'] = released(report['hostPort']) if report.get('hostPort') else False
         report['mockPortReleased'] = released(report['mockPort']) if report.get('mockPort') else False
-        report_file.write_text(json.dumps(report))
+        report_file.write_text(json.dumps(report), encoding='utf-8')
 
 
 if __name__ == '__main__':

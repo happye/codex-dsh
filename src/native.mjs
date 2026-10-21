@@ -2,8 +2,66 @@ import { randomUUID } from 'node:crypto';
 import WebSocket from 'ws';
 import { normalizeEvents } from './events.mjs';
 
-function failure(code, knownRejected = false) {
-  return Object.assign(new Error(`Native control: ${code}`), { code, knownRejected });
+// Only fixed discriminators carry meaning; native messages and payloads are private.
+const rejectionCategories = new Map([
+  ['gateway/bad-request', 'invalid_request'], ['gateway/arguments-invalid', 'invalid_request'],
+  ['gateway/input-invalid', 'invalid_request'], ['gateway/internal', 'unavailable'],
+  ['gateway/cancelled', 'aborted'], ['gateway/result-invalid', 'protocol_unknown'],
+  ['gateway/definition-unavailable', 'unavailable'], ['gateway/method-unavailable', 'unavailable'],
+  ['gateway/lookup-not-found', 'not_found'], ['session/not-found', 'not_found'],
+  ['session/conflict', 'conflict'], ['agent-preset/conflict', 'conflict'],
+  ['session/writer-held', 'conflict'], ['session/agent-busy', 'conflict'],
+  ['session/provider-credentials-unavailable', 'unavailable'],
+  ['session/provider-models-unavailable', 'unavailable'], ['session/model-unavailable', 'unavailable'],
+  ['session/attachment-invalid', 'invalid_request'], ['session/title-invalid', 'invalid_request'],
+  ['session/invalid-time-zone', 'invalid_request'],
+]);
+// Verified Gateway boundary failures before business invocation. A matching
+// error frame alone cannot prove an internal/domain failure had no effects.
+const preDispatchRejections = new Set([
+  'gateway/arguments-invalid', 'gateway/input-invalid',
+  'gateway/definition-unavailable', 'gateway/method-unavailable', 'gateway/lookup-not-found',
+]);
+const diagnosticMethods = new Set([
+  'session/create', 'session/prompt', 'session/page', 'session/follow',
+  'session/cancel', 'session/list', 'session/rename', 'session/projections',
+  'session/updateQueue', '$events', '$events/result',
+]);
+const diagnosticStages = new Set(['auth', 'rpc', 'stream', 'history', 'validation']);
+const diagnosticCategories = new Set([
+  'authentication', 'permission', 'not_found', 'conflict', 'invalid_request',
+  'rate_limited', 'unavailable', 'rejected', 'transport_unknown', 'protocol_unknown',
+  'timeout', 'aborted', 'callback_failed',
+]);
+
+export function safeDiagnostic(value) {
+  if (!value || !diagnosticStages.has(value.stage) || !diagnosticCategories.has(value.category) || typeof value.knownRejected !== 'boolean') return undefined;
+  const result = { stage: value.stage, category: value.category, knownRejected: value.knownRejected };
+  if (diagnosticMethods.has(value.method)) result.method = value.method;
+  if (typeof value.rpcId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value.rpcId)) result.rpcId = value.rpcId;
+  if (Number.isInteger(value.httpStatus) && value.httpStatus >= 100 && value.httpStatus <= 599) result.httpStatus = value.httpStatus;
+  return result;
+}
+
+function rejectionCategory(error) {
+  return rejectionCategories.get(error?.code) ?? 'rejected';
+}
+
+function failure(code, knownRejected = false, context = {}) {
+  const stage = code.startsWith('RPC_') ? 'rpc' : code.startsWith('STREAM_') ? 'stream'
+    : code.startsWith('HISTORY_') ? 'history' : code.startsWith('AUTH_') ? 'auth' : 'validation';
+  let category = 'protocol_unknown';
+  if (code.includes('TRANSPORT') || code === 'STREAM_SEND_UNKNOWN' || code === 'STREAM_DISCONNECTED') category = 'transport_unknown';
+  else if (code.includes('TIMEOUT')) category = 'timeout';
+  else if (code === 'STREAM_ABORTED') category = 'aborted';
+  else if (code === 'STREAM_ITEM_CALLBACK') category = 'callback_failed';
+  else if (code === 'RPC_HTTP_401' || code === 'AUTH_REQUIRED' || code === 'AUTH_REJECTED') category = 'authentication';
+  else if (code === 'RPC_HTTP_403' || code === 'AUTH_REDIRECT_REJECTED') category = 'permission';
+  else if (code === 'RPC_REJECTED' || code === 'STREAM_REMOTE_ERROR') category = context.category ?? 'rejected';
+  else if (stage === 'validation') category = 'invalid_request';
+  // Correlation is generated locally, never copied from an untrusted response.
+  const diagnostic = safeDiagnostic({ ...context, stage, category, knownRejected });
+  return Object.assign(new Error(`Native control: ${code}`), { code, knownRejected, diagnostic });
 }
 
 function origin(value) {
@@ -36,15 +94,20 @@ export class NativeClient {
       response = await fetch(exchange, { redirect: 'manual', signal: AbortSignal.timeout(timeoutMs) });
     } catch { throw failure('AUTH_TRANSPORT_UNKNOWN'); }
     const cookies = response.headers.getSetCookie();
-    if (![200, 302, 303].includes(response.status) || !cookies.length) throw failure('AUTH_REJECTED', true);
+    if (![200, 302, 303].includes(response.status) || !cookies.length) throw failure('AUTH_REJECTED', true, { httpStatus: response.status });
     const location = response.headers.get('location');
-    if (location && new URL(location, baseUrl).origin !== baseUrl) throw failure('AUTH_REDIRECT_REJECTED', true);
+    if (location) {
+      let target;
+      try { target = new URL(location, baseUrl); } catch { throw failure('AUTH_REDIRECT_REJECTED', true); }
+      if (target.origin !== baseUrl) throw failure('AUTH_REDIRECT_REJECTED', true);
+    }
     return { baseUrl, cookie: cookies.map(item => item.split(';', 1)[0]).join('; ') };
   }
 
   async rpc(method, args = {}, { signal } = {}) {
     const rpcId = randomUUID();
     let response;
+    const reject = (code, knownRejected = false, category) => failure(code, knownRejected, { method, rpcId, httpStatus: response?.status, category });
     try {
       response = await fetch(new URL(`/api/${encodeURI(method)}`, this.baseUrl), {
         method: 'POST', redirect: 'manual',
@@ -52,15 +115,15 @@ export class NativeClient {
         body: JSON.stringify({ type: 'client-request', rpcId, method, payload: { args } }),
         signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(this.timeoutMs)]) : AbortSignal.timeout(this.timeoutMs),
       });
-    } catch { throw failure('RPC_TRANSPORT_UNKNOWN'); }
+    } catch { throw reject('RPC_TRANSPORT_UNKNOWN'); }
     // Authentication/trust denial explicitly rejects before RPC dispatch. Other
     // HTTP statuses alone cannot establish whether a mutation executed.
-    if ([401, 403].includes(response.status)) throw failure(`RPC_HTTP_${response.status}`, true);
+    if ([401, 403].includes(response.status)) throw reject(`RPC_HTTP_${response.status}`, true);
     let body;
-    try { body = await response.json(); } catch { throw failure(`RPC_HTTP_${response.status}`); }
-    if (body.rpcId !== rpcId || typeof body.result?.ok !== 'boolean') throw failure('RPC_PROTOCOL_UNKNOWN');
-    if (!body.result.ok) throw failure('RPC_REJECTED', true);
-    if (!response.ok) throw failure(`RPC_HTTP_${response.status}`);
+    try { body = await response.json(); } catch { throw reject(`RPC_HTTP_${response.status}`); }
+    if (body?.rpcId !== rpcId || typeof body.result?.ok !== 'boolean') throw reject('RPC_PROTOCOL_UNKNOWN');
+    if (!body.result.ok) throw reject('RPC_REJECTED', preDispatchRejections.has(body.result.error?.code), rejectionCategory(body.result.error));
+    if (!response.ok) throw reject(`RPC_HTTP_${response.status}`);
     return body.result.value;
   }
 
@@ -116,8 +179,10 @@ export class NativeClient {
         if (finished) return;
         let frame;
         try { if (binary) throw Error(); frame = JSON.parse(raw.toString()); } catch { return finish(failure('STREAM_PROTOCOL_UNKNOWN')); }
-        if (frame.streamId !== streamId) return finish(failure('STREAM_ID_MISMATCH'));
-        if (frame.type === 'error') return finish(failure('STREAM_REMOTE_ERROR', true));
+        if (frame?.streamId !== streamId) return finish(failure('STREAM_ID_MISMATCH'));
+        // A stream decoder can fail after business invocation; its error code
+        // cannot prove that the operation was rejected before dispatch.
+        if (frame.type === 'error') return finish(failure('STREAM_REMOTE_ERROR', false, { method: endpoint, category: rejectionCategory(frame.error) }));
         if (frame.type === 'end') return finish();
         if (frame.type !== 'item') return finish(failure('STREAM_PROTOCOL_UNKNOWN'));
         try { onItem?.(frame.value); } catch { finish(failure('STREAM_ITEM_CALLBACK')); }
