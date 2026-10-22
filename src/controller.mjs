@@ -100,6 +100,7 @@ export class Controller {
       const lastStep = events.filter(event => event.type === 'step/start').reduce((last,event) => !last || event.seq > last.seq ? event : last, null);
       task.currentStep = lastStep ? { turn: lastStep.data.turn, step: lastStep.data.step } : null;
       task.foreignRpcIds = projection.foreignRpcIds;
+      if (projection.foreignRpcIds.length || projection.unknownUserActivity) task.sharedStopRequired = true;
       for (const request of task.requests) {
         const observed = projection.requests[request.requestId];
         if (!observed || (!observed.messageId && observed.state === 'UNKNOWN')) {
@@ -442,10 +443,22 @@ export class Controller {
       phase = 'queue'; await record({ phase });
       const owned = new Set(task.requests.map(r => r.requestId));
       const queue = queued(await client.rpc('session/projections', { request: { sessionId: task.sessionId } }));
+      await this.store.transaction(state => {
+        if (queue.some(item => !owned.has(item.source?.rpcId))) state.tasks[id].sharedStopRequired = true;
+      });
       await record({ before: snapshot(await this.store.task(id), queue) });
       for (const item of queue) if (owned.has(item.source?.rpcId) && item.id) await client.rpc('session/updateQueue', { request: { sessionId: task.sessionId, itemId: item.id, action: { kind: 'remove' } } });
-      // Shared sessions have no atomic conditional-cancel API; cancelling could affect a user turn.
-      if (task.scope === 'exclusive') {
+      // Re-read observable history and queue before cancellation, including when another
+      // observer owns the lease. Native has no cross-client atomic conditional cancel.
+      await this.refresh(id, client);
+      const latestQueue = queued(await client.rpc('session/projections', { request: { sessionId: task.sessionId } }));
+      await this.store.transaction(state => {
+        if (latestQueue.some(item => !owned.has(item.source?.rpcId))) state.tasks[id].sharedStopRequired = true;
+      });
+      const cancelSafe = task.scope === 'exclusive' && !(await this.store.task(id)).sharedStopRequired;
+      if (!cancelSafe) await record({ cancelSkippedReason: task.scope === 'shared' ? 'shared-session' : 'foreign-or-unknown-native-activity' });
+      // Shared semantics are sticky once foreign or unknown activity is observed.
+      if (cancelSafe) {
         phase = 'cancel'; await record({ phase, cancelRequested: true });
         const started = Date.now();
         let ack;
@@ -453,7 +466,7 @@ export class Controller {
         finally { await record({ cancelAck: { ...(typeof ack?.accepted === 'boolean' ? { accepted: ack.accepted } : {}), durationMs: Date.now() - started } }); }
       }
       phase = 'reconcile'; await record({ phase });
-      if (task.scope === 'exclusive') {
+      if (cancelSafe) {
         const deadline = Date.now() + 1500;
         do {
           if (watcher) await watcher.tick();
@@ -472,7 +485,7 @@ export class Controller {
       // Native tool inventory cannot prove every job/schedule/descendant stopped. Retain pending when any tool ran.
       const toolsSeen = current.observedToolCount > 0 || current.activity?.length || current.foreignRpcIds?.length;
       const unresolved = current.requests.some(r => ['SUBMISSION_UNKNOWN', 'SUBMITTING', 'SUBMITTED', 'UNKNOWN', 'RUNNING', 'QUEUED'].includes(r.state));
-      const quiet = task.scope === 'exclusive' && row?.running === false && remainingQueue.length === 0 && !toolsSeen && !unresolved;
+      const quiet = cancelSafe && !current.sharedStopRequired && row?.running === false && remainingQueue.length === 0 && !toolsSeen && !unresolved;
       await this.store.transaction(state => {
         if (state.tasks[id].stopAttempt.id === attemptId) {
           state.tasks[id].stopState = quiet ? 'STOPPED' : 'STOP_PENDING';

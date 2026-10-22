@@ -66,6 +66,8 @@ src/usage.mjs 输出 dsh-usage/v1，保留单一原生 session 内任务请求�
 
 停止先阻止新 send、run 与审批决定，再处理自有队列和允许范围内的原生取消。共享会话无法按请求原子取消，保守返回 STOP_PENDING；不归档、不删除提醒、不杀共享 Host。无法证明后台任务、子树或未知提交已静止，也保留 pending。STOPPED 仅限报告列明的会话观察范围。
 
+0.1.3把观察到的foreign rpc、未知真实user消息、foreign/未知队列持久化为sharedStopRequired；五类原生context来源不算真实输入。stop在取消前重新核可观察历史与队列；一旦共享，不因队列暂时清空恢复专属取消，仅移除本任务项并记录cancelSkippedReason。这个保守门不提供Host侧的conditional-cancel或跨客户端原子锁。
+
 0.1.2持久化最近一次stopAttempt及白名单stopDiagnostic，分别记录观察就绪、队列、取消、协调阶段；accepted与终态分开。前快照不新增session/list依赖，running未知填null；后快照读取原生列表。回执不记录原生错误正文、提示、凭证或提供方内容；并发时按attempt id保护最新诊断，任务摘要呈现最新尝试。诊断加载器仅用于独立本机mock进程，产品不加载或改写原生bundle。
 
 ## 运行边界

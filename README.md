@@ -2,7 +2,7 @@
 
 让当前 Codex 对话通过原生接口发送任务、接收结果、检查状态，再安排下一轮。DSH 继续使用完整原生 Harness；控制器不提供模型代理、不重新实现工具执行器。
 
-版本：0.1.2版。提供原生工作区、版本化任务合同、执行证据回执、增量观察与原生用量导出；最终验收结果与限制以[验证范围](docs/validation.md)为准。
+版本：0.1.3。提供原生工作区、版本化任务合同、执行证据回执、增量观察与原生用量导出；已观察外部参与时采用保守共享停止，避免取消其他客户端的轮次。验收结果与限制以[验证范围](docs/validation.md)为准。
 
 ## 一句话开始
 
@@ -68,10 +68,12 @@ start 默认创建任务专属原生会话；附加已有会话使用共享停�
 - [用户手册](docs/manuals/user-guide.md)：日常协作、费用、停止和故障处理。
 - [Codex 手册](docs/manuals/codex-guide.md)：命令、状态、审批和循环决策。
 - [合同与证据手册](docs/manuals/contracts.md)：合同 JSON、修订、测试职责、readiness 与回执复用。
+- [额度中断与持续调度方案](docs/manuals/quota-continuity.md)：官方续用机制、成熟组件、本机DSH能力及尚未实现的接管设计。
 - [流程图与技术说明](docs/architecture.md) · [Mermaid 源文件](docs/architecture.mmd)。
 - [协作 Skill](.agents/skills/codex-dsh-collab/SKILL.md) · [验证范围](docs/validation.md)。
 - [已知问题与迭代记录](docs/validation.md#known-issues)：唯一长期待办入口，含当前验收边界与有限工程实测；真实业务、工程样本与 mock 验收分开记录。
 - [0.1.2 本轮迭代](docs/iterations/2026-10-22-0.1.2.md)：合同、证据、增量观察、工作区与用量；历史结果不冒充本轮重测。
+- [0.1.3 并发停止修复](docs/iterations/2026-10-22-0.1.3.md)：外部客户端保护、原生DSH联调与真实用量。
 
 ```powershell
 npm test

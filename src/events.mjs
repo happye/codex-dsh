@@ -1,5 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
 
+const contextSources = new Set(['agent-instructions', 'runtime-context', 'skill-catalog', 'time-context', 'compact-checkpoint']);
+
 // Wire events are a dense zero-based log; partial windows may begin above zero.
 export function normalizeEvents(events, { contiguous = false } = {}) {
   const bySeq = new Map();
@@ -32,6 +34,7 @@ export function projectSession(events, { requestIds = [], liveSeqs = [] } = {}) 
   }]));
   const turns = new Map();
   const foreignRpcIds = new Set();
+  let unknownUserActivity = false;
   const tools = [];
   const activity = [];
   let currentTurn = null;
@@ -57,6 +60,7 @@ export function projectSession(events, { requestIds = [], liveSeqs = [] } = {}) 
           request.turn = openTurn;
         }
       } else if (requestId) foreignRpcIds.add(requestId);
+      else if (!contextSources.has(message.source?.kind)) unknownUserActivity = true;
     }
     const turn = data.turn ?? openTurn;
     const record = turns.get(turn);
@@ -98,5 +102,5 @@ export function projectSession(events, { requestIds = [], liveSeqs = [] } = {}) 
       request.viewReason = 'snapshot-terminal-may-be-synthetic';
     }
   }
-  return { requests, currentTurn, lastSeq: ordered.at(-1)?.seq ?? -1, tools, foreignRpcIds: [...foreignRpcIds], activity };
+  return { requests, currentTurn, lastSeq: ordered.at(-1)?.seq ?? -1, tools, foreignRpcIds: [...foreignRpcIds], unknownUserActivity, activity };
 }

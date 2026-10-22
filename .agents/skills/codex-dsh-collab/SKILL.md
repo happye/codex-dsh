@@ -23,4 +23,6 @@ workspace --connection NAME 列表，加 --cwd ABSOLUTE 注册；start --workspa
 
 收到停止，禁止新 send/run/审批并调用 stop；无法证明后台/子树静止则明确 STOP_PENDING。读取可用的stopAttempt/stopDiagnostic，取消ack不等于请求终止，历史工具也可能使已中断请求仍报pending；保留不明证据，不自动重投或循环cancel。不要杀共享 Host、归档会话或删除提醒。每阶段透明汇报 DSH 行为、Codex 验收、下一步和未确认项。
 
+0.1.3观察到外部或未知来源的真实输入/队列后，自建会话也永久采取共享停止，不取消外部轮次；看cancelSkippedReason，不以初始exclusive推定当前独占。原生无按request条件取消的原子API。额度中断后的路线读toolRoot下docs/manuals/quota-continuity.md；当前没有常驻接管服务，原生schedule也不能替代Codex验收或绕过停止，不自动创建循环提醒。
+
 保留原生配置、UI、上下文、工具、skills、MCP 和子 Agent 执行链。CLI 不提供文件沙箱或事务接收，真实项目遵循其本身的隔离/合入规则。

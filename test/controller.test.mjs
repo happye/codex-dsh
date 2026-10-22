@@ -604,6 +604,25 @@ test('wait establishes both streams before prompt; timeout does not cancel', asy
   assert.equal(result.observationTimedOut, true);
   assert.equal(f.calls.filter(c => c.method === 'session/cancel').length, 0);
 });
+for (const foreign of ['rpc-turn', 'queue', 'unknown-user']) test(`exclusive stop preserves later foreign activity: ${foreign}`, async t => {
+  const f = await fixture(t);
+  await f.controller.send({ task: 'test', text: 'input', allowModel: true });
+  const id = (await f.store.task('test')).requests[0].requestId;
+  f.queue([{ id: 'ours', source: { rpcId: id } }, ...(foreign === 'queue' ? [{ id: 'theirs', source: { rpcId: 'foreign' } }] : [])]);
+  if (foreign !== 'queue') f.events.push(
+    { seq: 0, type: 'turn/start', data: { turn: 1 } },
+    { seq: 1, type: 'user/message', data: { message: { id: 'external', ...(foreign === 'rpc-turn' ? { source: { rpcId: 'foreign' } } : {}) } } },
+  );
+  f.running(true);
+  const result = await f.controller.stop({ task: 'test' });
+  assert.equal(f.calls.filter(c => c.method === 'session/cancel').length, 0);
+  assert.equal(result.state, 'STOP_PENDING');
+  assert.equal(result.stopAttempt.cancelRequested, false);
+  assert.equal(result.stopAttempt.cancelSkippedReason, 'foreign-or-unknown-native-activity');
+  assert.deepEqual(f.calls.filter(c => c.method === 'session/updateQueue').map(c => c.args.request.itemId), ['ours']);
+  await assert.rejects(f.controller.send({ task: 'test', text: 'later', allowModel: true }), { code: 'TASK_STOPPED' });
+});
+
 test('shared stop removes only owned queue and never cancels another session turn', async t => {
   const f = await fixture(t, { shared: true });
   await f.controller.send({ task: 'test', text: 'input', allowModel: true });
@@ -614,6 +633,33 @@ test('shared stop removes only owned queue and never cancels another session tur
   assert.deepEqual(f.calls.filter(c => c.method === 'session/updateQueue').map(c => c.args.request.itemId), ['ours']);
   assert.equal(f.calls.filter(c => c.method === 'session/cancel').length, 0);
   await assert.rejects(f.controller.send({ task: 'test', text: 'later', allowModel: true }), { code: 'TASK_STOPPED' });
+});
+
+test('stop checks latest queue and remembers foreign activity after it disappears', async t => {
+  const f = await fixture(t);
+  const client = await f.controller.client(await f.store.task('test')), rpc = client.rpc.bind(client);
+  let reads = 0;
+  client.rpc = async (method, args) => {
+    if (method === 'session/projections' && ++reads === 2) f.queue([{ id: 'external', source: {} }]);
+    return rpc(method, args);
+  };
+  const first = await f.controller.stop({ task: 'test' });
+  assert.equal(first.stopAttempt.cancelSkippedReason, 'foreign-or-unknown-native-activity');
+  f.queue([]);
+  const second = await f.controller.stop({ task: 'test' });
+  assert.equal(second.state, 'STOP_PENDING');
+  assert.equal(second.stopAttempt.cancelSkippedReason, 'foreign-or-unknown-native-activity');
+  assert.equal(f.calls.filter(c => c.method === 'session/cancel').length, 0);
+});
+
+test('native context messages preserve exclusive cancellation', async t => {
+  const f = await fixture(t);
+  for (const kind of ['agent-instructions', 'runtime-context', 'skill-catalog', 'time-context', 'compact-checkpoint']) {
+    f.events.push({ seq: f.events.length, type: 'user/message', data: { message: { source: { kind } } } });
+  }
+  const result = await f.controller.stop({ task: 'test' });
+  assert.equal(result.state, 'STOPPED');
+  assert.equal(f.calls.filter(c => c.method === 'session/cancel').length, 1);
 });
 test('stop serializes with dispatch across controller instances and blocks a gated unsent intent', async t => {
   const f = await fixture(t, { shared: true });

@@ -116,9 +116,13 @@ SUBMITTING / SUBMISSION_UNKNOWN / UNKNOWN / CREATE_UNKNOWN 不能当作“未执
 
 收到停止先调用 stop，禁止后续 send、run 和审批决定。专属会话使用会话级原生取消；共享会话不盲目取消其他用户轮次。无法证明子任务、后台 job、外来轮次、工具或不明提交静止时报告 STOP_PENDING。不要杀共享 Host、archive、删提醒或宣称整棵工作树已停止。
 
+0.1.3起，自建会话一旦观察到外部rpc、外部/未知来源队列或非原生context的未知用户输入，也永久采用共享停止语义：仅移除本任务队列，不调用session/cancel。stopAttempt.cancelSkippedReason说明跳过原因。原生缺少按request/turn做条件取消的API，最后检查之后仍可能有外部输入，这不是服务器排他锁或跨客户端原子保护。
+
 0.1.2本地迭代新增stopAttempt，保留最近一次停止尝试的阶段、时间、cancelRequested、cancelAck及前后活动计数；stopDiagnostic使用固定原因码和安全诊断。cancelAck.accepted只表示原生接收取消，不能代替turn/end、running=false或后台静止证明。before.running为null表示未采集取消前的原生列表；诊断不增加取消前的列表查询。并发调用读取的是任务最新尝试，须按id辨认，不把别次尝试的回执当本次私有结果。出现STOP_REQUEST_RUNNING、STOP_CANCEL_UNKNOWN等，保留账本和原生记录，不自动再次取消或重投prompt。
 
 一个 Host 使用同一状态目录：目录内协调连接别名和任务锁，目录间无全局协调。原生 UI 和外部客户端仍能操作会话，所谓 exclusive 是控制器创建的任务用途，不是服务器排他锁。
+
+额度用尽后的方案见[持续调度手册](quota-continuity.md)。DSH自身可能继续已提交工作或原生schedule；这不表示离线Codex能安排新判断。不要未经授权创建循环提醒，或把schedule投递当作Codex独立验收。
 
 ## 技术和验证
 

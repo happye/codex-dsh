@@ -3,6 +3,16 @@ import assert from 'node:assert/strict';
 import { projectSession } from '../src/events.mjs';
 
 const event = (seq, type, data) => ({ seq, type, time: 1, data });
+test('only known native context sources avoid unknown user activity', () => {
+  for (const kind of ['agent-instructions', 'runtime-context', 'skill-catalog', 'time-context', 'compact-checkpoint']) {
+    assert.equal(projectSession([event(0, 'user/message', { message: { source: { kind } } })]).unknownUserActivity, false);
+  }
+  for (const source of [undefined, {}, { kind: 'unknown' }]) {
+    assert.equal(projectSession([event(0, 'user/message', { source })]).unknownUserActivity, true);
+  }
+  assert.equal(projectSession([event(0, 'user/message', { source: { rpcId: 'owned' } })], { requestIds: ['owned'] }).unknownUserActivity, false);
+});
+
 test('correlates rpc user to preceding turn, excludes unrelated turns and tool results', () => {
   const events = [
     event(0, 'turn/start', { turn: 1 }),
