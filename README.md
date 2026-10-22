@@ -6,11 +6,13 @@
 
 ## 一句话开始
 
-在能读取本仓库 Skill 的 Codex 对话中说：
+在目标项目的Codex会话中发送（替换三个占位）：
 
-> 使用 $codex-dsh-collab，连接我的原生 DSH，为【项目绝对路径】完成【目标】，按【验收标准】自主协作，每阶段汇报，收到停止指令就停止新派发。
+> 使用 $codex-dsh-collab，在【项目绝对路径】完成【目标】，以【验收标准】验收；授权本任务必要的原生DeepSeek调用及费用，由你规划验收、DSH实施，按项目规则保留现有改动、建立或复用合同与会话，自主循环追修并阶段汇报，直到验收通过或我叫停，Git提交、推送和部署沿用已有授权。
 
-先完成下面的一次初始化，其他项目的 Codex 就能发现同一个个人 Skill、工具位置和连接账本。之后可说“继续任务 TASK_ID”或“停止任务 TASK_ID”。续接沿用原 task、账本和 DSH session；Skill 不提供脱离活跃 Codex 对话的永久后台调度。
+新任务由Codex完成接入；续工直接说“使用 $codex-dsh-collab，继续任务【TASK_ID】，沿用原账本和DSH会话，先核对上轮成果，再按原合同继续”。用户不必逐轮传话、填写合同JSON或手动操作CLI。
+
+机器初始化只做一次；新项目准备和完整操作流程见[用户手册](docs/manuals/user-guide.md#new-project)。当前电脑已初始化时，复用个人Skill、工具定位及连接账本。控制器由活跃Codex对话驱动；额度耗尽后的自动接管与常驻调度不属于本项目路线。
 
 ## 准备和运行
 
@@ -68,10 +70,9 @@ start 默认创建任务专属原生会话；附加已有会话使用共享停�
 - [用户手册](docs/manuals/user-guide.md)：日常协作、费用、停止和故障处理。
 - [Codex 手册](docs/manuals/codex-guide.md)：命令、状态、审批和循环决策。
 - [合同与证据手册](docs/manuals/contracts.md)：合同 JSON、修订、测试职责、readiness 与回执复用。
-- [额度中断与持续调度方案](docs/manuals/quota-continuity.md)：官方续用机制、成熟组件、本机DSH能力及尚未实现的接管设计。
 - [流程图与技术说明](docs/architecture.md) · [Mermaid 源文件](docs/architecture.mmd)。
 - [协作 Skill](.agents/skills/codex-dsh-collab/SKILL.md) · [验证范围](docs/validation.md)。
-- [已知问题与迭代记录](docs/validation.md#known-issues)：唯一长期待办入口，含当前验收边界与有限工程实测；真实业务、工程样本与 mock 验收分开记录。
+- [待办与迭代方向](docs/validation.md#known-issues)：后续真实工程验收、必要缺陷修复和未验证边界；额度自动接管方向已取消。
 - [0.1.2 本轮迭代](docs/iterations/2026-10-22-0.1.2.md)：合同、证据、增量观察、工作区与用量；历史结果不冒充本轮重测。
 - [0.1.3 并发停止修复](docs/iterations/2026-10-22-0.1.3.md)：外部客户端保护、原生DSH联调与真实用量。
 

@@ -6,6 +6,18 @@
 
 先读个人Skill目录的local-settings.json（由setup生成），字段toolRoot/stateDir/connection/url用于跨工作区定位。CLI自动沿用配置；可用connections列出非秘密元数据，不能完整打印state.json。缺少首次鉴权时运行setup，不能把Skill已安装或配置已存在当作已认证。测试fixture里的连接不可当正式连接复用。不要让用户手写配置JSON或在每个项目重新提供同一stateDir。
 
+## 新项目接入顺序
+
+用户的一句话模板及准备条件以[用户手册](user-guide.md#new-project)为准。用户给目标、范围、验收和必要模型调用授权；以下机械步骤由Codex完成，不要求用户手工填写合同或逐条执行命令。
+
+1. 读个人local-settings，定位工具与原账本；connections查本地元数据，再用原生workspace/状态查询确认实际连通。配置存在不等于已在线；仅缺失/失效才setup，不重新索要已有有效连接凭证。
+2. 读目标项目规则，核真实Git根/branch/HEAD、脏树与未跟踪项。工程合同executionRoot必须正好是有HEAD的Git根；空仓库先在允许的初始化范围内建立最小基线，已有成果不得为接入而reset/clean/擅自提交。
+3. 查询本项目已有task/workspace。续工恢复原task/session；新目标才start。可复用/注册原生workspace后带--workspace，或直接start --cwd；用户不需要预先提供workspaceId。
+4. 工程任务由Codex准备合同JSON，绑定nativeCwd、获准executionRoot、允许文件、要求、测试职责与授权引用，然后send --contract-sha。测试计划尚未确定可暂为空，但不虚构验收通过；Python仅在项目/测试需要时准备。
+5. 保持有界观察，按真实产物和证据验收/追修，阶段报告并留下task ID。已有任务和费用授权持续有效，提交/推送/部署不超出项目既有授权。
+
+全局Skill和工具安装无需复制进业务项目；未全局安装codex-dsh命令时，按个人配置toolRoot使用node加bin入口的绝对路径。nativeCwd、executionRoot和state-dir三者不能互相代替；本工具不自动复制候选树或合入改动。
+
 ## 命令合同
 
 在工具仓库使用node bin/codex-dsh.mjs，或通过配置toolRoot定位bin，或用已安装的codex-dsh。setup后自动复用个人stateDir；显式--state-dir优先，用于旧任务或隔离测试。无配置时保留旧版当前目录.codex-dsh的兼容行为。完整参数以--help为准。
@@ -122,7 +134,7 @@ SUBMITTING / SUBMISSION_UNKNOWN / UNKNOWN / CREATE_UNKNOWN 不能当作“未执
 
 一个 Host 使用同一状态目录：目录内协调连接别名和任务锁，目录间无全局协调。原生 UI 和外部客户端仍能操作会话，所谓 exclusive 是控制器创建的任务用途，不是服务器排他锁。
 
-额度用尽后的方案见[持续调度手册](quota-continuity.md)。DSH自身可能继续已提交工作或原生schedule；这不表示离线Codex能安排新判断。不要未经授权创建循环提醒，或把schedule投递当作Codex独立验收。
+额度耗尽后的自动接管、常驻调度与循环提醒不属于本项目路线。Codex中断时不承诺新派发；恢复后先核对原task/session已发生的工作，再按原合同继续，不重放不明请求。
 
 ## 技术和验证
 
