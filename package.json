@@ -24,6 +24,7 @@
   },
   "files": [
     "bin/",
+    "benchmarks/",
     "src/",
     "docs/manuals/",
     "docs/architecture.md",

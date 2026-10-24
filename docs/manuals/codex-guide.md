@@ -54,8 +54,8 @@ JSON 输出。退出码 0 表示命令成功/取得状态，**不表示任务完
 1. 明确目标、允许目录、验收标准、现有未提交修改和费用授权。对真实工程按其合同选择隔离工作树；不要把新原生会话当文件沙箱。工具不会自动复制或接收改动。
 2. 新任务在连接后start，记录任务ID、sessionId、状态目录、真实项目根和Git基线。同一任务持续使用原生session；换聊天先recover --task或resume/status，不重复start。忘记task时，用tasks按连接、目录、精确标题筛选，再recover唯一候选；有歧义时选具体ID，不猜。connections仍只列本地定位元数据。
 3. 真实工程先按[合同与证据手册](contracts.md)准备 JSON，以 contract --file 绑定，再用 send --contract-sha 返回的 SHA256 派发。首个已确认使用该 hash 的请求附完整合同，后续带合同引用及本轮增量；压缩或上下文不明时须重读合同资产的 contract 字段。--allow-model 只能在已有任务和费用授权内使用，不能据它扩大范围。
-4. 保持有界观察；超时而未完成则继续 follow，断线则 resume/follow。不要因观察窗口结束取消或重发。审批事件依赖活跃 watcher；若同时等待模型和审批，保持 send --wait / follow 进程运行，通过另一 CLI 进程查询/提交决定。Watcher 不是后台常驻服务；Codex 主控不活跃、聊天关闭或额度耗尽时，不保证自动收发事件或安排下一轮。
-5. 对已匹配本请求的 COMPLETED，读取完整 resultFile，并检查文件、diff 与相关测试。必要时把具体反例发成下一轮新请求；原生 turn 完成不代表用户目标完成。
+4. 常规send/follow使用--wait 60 --view summary --request latest；后续观察传上次cursor/generation。超时而未完成则继续follow，断线才resume/follow，不叠加status或短轮询。审批事件依赖活跃watcher；需实时处理时用listen并通过另一CLI决定。窗口结束后重开有效lease。完整规则及例外见[减少重复读取与等待输出](efficient-collaboration.md)。Watcher不是后台常驻服务；Codex主控不活跃、聊天关闭或额度耗尽时，不保证自动收发事件或安排下一轮。
+5. 对已匹配本请求的终态，按requestId/resultSha256读取新resultFile一次，并检查实际文件、diff与相关测试；同路径hash变化或恢复后内容缺失时重读。RUNNING不因cursor变化反复展开全文；用户需要中间结果、审批或排错时定向读取。必要时把具体反例发成下一轮新请求；原生turn完成不代表用户目标完成。
 6. 每阶段报告目标、DSH 行为、Codex 验收、下一步、已知费用及未验证边界。任务完成、明确受阻或用户停止时结束派发。
 
 没有自动模型决策守护进程。可以由 Codex 主动重复上述调用；用户不必手动在两端传话。工具没有保证跨 Codex 配额中断的持续主控服务。
@@ -67,8 +67,7 @@ JSON 输出。退出码 0 表示命令成功/取得状态，**不表示任务完
 
 ```sh
 codex-dsh connections
-codex-dsh resume --task demo
-codex-dsh status --task demo
+codex-dsh resume --task demo --view summary --request latest
 ```
 
 旧任务用了其他账本时，每条命令显式加--state-dir STATE_ABSOLUTE_PATH。该参数不选择DSH工作目录。resume/recover读取历史，不重投旧prompt；恢复后仍须核文件、允许范围和费用授权。tasks/recover只查同Host已绑定任务；标题可改且可缺失，不能作为永久身份。--active为true表示native running或仍有未决请求，false/null不表示产品目标完成。

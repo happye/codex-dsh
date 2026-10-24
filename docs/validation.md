@@ -1,5 +1,11 @@
 # 验收范围与结果
 
+## 2026-10-24：调用流程与参考token对照
+
+本轮保持0.1.3运行时代码不变，优化Skill和操作示例：常规有界增量观察、稳定材料按hash复用、避免resume后重复status与bind后重复inspect，保留审批/错误/停止及源变化重验。使用方式不变，用户仍一句话调用Skill。
+
+离线固定输出文本样例的参考token减少40.71%–73.43%；计数器、分母、输入指纹和新增规则阅读成本见[可复现对照](manuals/efficient-collaboration.md#如何量化)。8项信号断言与view/contract定向28项通过、0失败/跳过，未复制未变全套或原生集成。独立静态审阅无阻塞；未启动原生Host或调用DeepSeek，不恢复暂停项目。本轮Codex分析与验证自身开销未混入样例；不能据此声称历史实省、双方账单下降或完整质量等价。
+
 ## 2026-10-22：0.1.3外部活动停止保护
 
 修复自建会话被外部客户端共用后仍会session/cancel误伤的问题：3个最小反例先红，观察到foreign/unknown输入或队列后持久采用共享停止，仅移除owned队列，保留STOP_PENDING。未知输入与五类原生context分开处理，取消前补核最新可观察历史/队列；不增加取消前session/list硬依赖。
@@ -115,6 +121,7 @@ Remove-Item Env:DSH_APPROVAL_SOURCE_FIXTURE
 | C12 | P1 | 已实现 | 测试合同指定owner/scope/domain/命令/材料；源、全Git索引、解释器和显式runtimeInputs均入指纹。同指纹合格回执复用，重跑需原因；guard/probe保持分离，repo-full先readiness及定向证据。 | 外部运行依赖清单缺失则不能接受/复用；source/runtime/原日志任一变化失效。明确textFiles仅规范CRLF/LF，原始日志及保护项仍逐字节严格。 |
 | <a id="c13"></a>C13 | P1 | 取消回执已补；历史根因未知 | 原失败第三轮无turn/end、整体FAIL原件保留。后续无trace的独立CLI多会话对照在Node24/25均取消、持久化aborted且断流，当前最终原生回归另记。 | 不修改外部cancel、不加取消前list、不重试RPC。cancelAck不代替终态；历史工具/子任务无法证静止继续STOP_PENDING。原失败无法复现不冒充根因修复。 |
 | C14 | — | 已撤销（非待办） | 2026-10-22按用户决定撤销额度续工、自动接管和常驻调度方向；原研究未实施或部署。 | 不再调研或实现。保留ID和[撤回说明](manuals/quota-continuity.md)供历史引用，当前协作仍由活跃Codex对话主控。 |
+| C15 | P2 | 调用流程已优化；实际收益待验 | 2026-10-24更新Skill：常规有界增量观察、稳定材料hash复用、新答复只展开一次；保留审批/错误/停止及源变化重验。离线输出样例参考token减少40.71%–73.43%，不是历史实省或双方账单。 | [规则与可复现对照](manuals/efficient-collaboration.md)；运行时与原生能力未改。下一次获授权工程任务按同条件比较实际输出、必要检查和缺陷，已采用增量的收益不重复计入；不恢复暂停项目做实验。 |
 
 <a id="roadmap"></a>
 ## 当前后续路线

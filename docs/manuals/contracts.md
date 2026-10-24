@@ -49,11 +49,12 @@
 
 ```sh
 codex-dsh contract --task demo --file contract.json
-codex-dsh contract --task demo
 codex-dsh send --task demo --contract-sha CONTRACT_SHA256 --text-file prompt.txt --allow-model --wait 60 --view summary
 ```
 
 CONTRACT_SHA256 取 bind 输出的 contractSha，不能用原 JSON 文件的哈希代替。绑定资产 schema 为 dsh-contract/v1，包含 contract、baseline、binding；绑定 task/session、目录身份、Git HEAD/branch/index 和文件基线。保护文件、未列入 allowedFiles 的文件或 index 变化会阻断后续检查。绑定不会清理原有修改，也不会自动回滚。
+
+绑定返回的信息足够进入下一步时，不紧接着再inspect或全文打印baseline。`contract --task demo`用于需要重新核验合同、恢复或诊断的场合；审阅过的材料按路径/hash复用，但send/run/receipt/readiness仍执行其当前指纹及范围检查，代码或运行依赖变化后不能沿用旧通过。详见[减少重复读取与等待输出](efficient-collaboration.md)。
 
 真实工程必须先绑定合同，send 传当前 contract-sha；已绑定任务漏传或错传会拒绝。尚未绑定的兼容任务仍可无 hash 发送，这不免除工程合同要求。首次该 hash 尚无确认消息时附完整 contract；后续确认使用同 hash 的请求仅附引用与本轮增量。压缩、上下文缺失或不明时，DSH 须读取资产的 contract 字段并保留全部要求；baseline 是核验数据，不必重复展开。轮次 COMPLETED 仍须 Codex 读 resultFile、diff 与证据验收。
 

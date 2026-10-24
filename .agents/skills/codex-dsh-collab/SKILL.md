@@ -13,7 +13,11 @@ description: 通过本工具的原生 DSH 控制器启动、继续、查看和�
 
 工程实施先读docs/manuals/contracts.md，由Codex生成并绑定版本化合同（允许/保护文件、Git基线、完整要求、测试职责和授权引用），不是让用户填写JSON，再send --contract-sha 当前hash。首次全文、后续引用加本轮增量；压缩或不明时重读资产。要求删改必须逐项授权修订；run/receipt/readiness和runtimeInputs等证据规则按合同手册执行，未知执行不重跑。授权真实模型调用不自动授权Git提交、推送或部署，这些按项目既有授权处理。
 
-循环：在任务/费用授权内send --allow-model → follow/listen观察匹配请求 → 读取完整resultFile及实际文件/diff/测试验收 → 新请求追修。COMPLETED只表示轮次结束；超时继续观察，通信不明先恢复而不重投。summary/latest与generation减少重复输出，但不省略审批/错误/停止变化或完整成果验收。usage只代表可见DSH原生计数；一次逻辑send不等于一次提供方请求，不能承诺总费用硬上限或双方省费比例。每阶段报告目标、DSH行为、Codex验收、下一步和未确认项，交接保留task ID。
+循环：在任务/费用授权内send --allow-model → follow/listen观察匹配请求 → 读取完整resultFile及实际文件/diff/测试验收 → 新请求追修。常规send/follow使用--wait 60 --view summary --request latest，保存返回cursor/generation，后续观察带--since-cursor/--since-generation；已有watcher不叠加status/follow。非终态超时继续有界等待，不用短轮询催进度；实时审批才用listen，窗口结束重开以恢复有效lease。具体例子及例外见docs/manuals/efficient-collaboration.md。
+
+同会话已读手册、合同和稳定材料按路径/hash复用；版本、内容、要求变化或压缩后缺少内容时，定向重读，不以缓存绕过目录/权限/合同和实时停止检查。RUNNING中的resultFile不反复全文读取；终态按requestId/resultSha256读取新答复一次，检查实际diff/证据，不同请求或同路径hash变化须重读。审批、错误/停止变化、用户要求的中间结果不能因去重丢失；changed=false仅表示该投影没变化，不代表任务闲置、完成或已停净。cursor/generation变化也不必然值得读取完整材料。
+
+COMPLETED只表示轮次结束；通信不明先恢复而不重投。代码或运行依赖变化后重新核验相应回执；独立验收不默认复制未变全套。相同非行动警告只报告一次及变化，保留原始stderr，不过滤新错误。阶段汇报聚焦新事实、验收和下一步，usage在阶段/交接时读取，不逐次轮询。可见DSH计数不是双方总账，一次send也不等于一次提供方请求；不得承诺实际费用或固定token节省比例，交接保留task ID。
 
 审批保持同task单一watcher，listen最多60秒并输出JSONL；另一CLI提交有效决定，leaseOpen=false后不复用旧事件。遵循原生权限链，部署绕过审批时不虚构已确认。收到停止，先禁止新send/run/审批并调用stop；观察到外部/未知活动后，自建会话也持久使用共享停止，看cancelSkippedReason，不能按初始exclusive推定独占。无法证明后台/子树静止则STOP_PENDING；不杀共享Host、不archive、不删提醒，不盲目循环cancel。
 

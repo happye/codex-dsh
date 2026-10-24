@@ -46,15 +46,16 @@ Codex负责完成以下接入：
 
 Codex 负责规划和验收，DSH 执行原生任务；正常循环无需你逐轮传话。Codex 会说明本阶段派发了什么、DSH 返回了什么、验收结果和下一步。若停止指令在工具阻塞期间到达，Codex 需要恢复执行机会才能调用停止；不是独立的实时停止服务。
 
+正常等待优先用有界增量观察，已读且未变的材料复用，阶段汇报聚焦新事实；代码变化后的重验、审批、断线恢复及停止确认保留。具体规则与量化边界见[减少重复读取与等待输出](efficient-collaboration.md)。这改变Codex的调用习惯，不改变DSH原生上下文、工具或完整输出。
+
 同一任务默认在同一个 DSH session 连续多轮工作，换 Codex 聊天不会自动新建 DSH 会话。续接时明确给出原 task ID，并沿用原账本和 session；Codex 读取个人配置和任务交接后，通用恢复命令为：
 
 ```sh
 codex-dsh connections
-codex-dsh resume --task demo
-codex-dsh status --task demo
+codex-dsh resume --task demo --view summary --request latest
 ```
 
-resume 只读历史并恢复观察，不重发旧提示。若要挂靠尚未绑定的指定会话，核对后运行：
+resume只读历史并恢复观察，不重发旧提示；已有新摘要时不例行再查status。若要挂靠尚未绑定的指定会话，核对后运行：
 
 ```sh
 codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --task demo --session SESSION_ID

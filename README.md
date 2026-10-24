@@ -40,10 +40,9 @@ codex-dsh recover --connection native --cwd PROJECT_ABSOLUTE_PATH --title EXACT_
 codex-dsh workspace --connection native --cwd PROJECT_ABSOLUTE_PATH
 codex-dsh start --connection native --cwd PROJECT_ABSOLUTE_PATH --workspace WORKSPACE_ID --task demo
 codex-dsh contract --task demo --file CONTRACT_JSON
-codex-dsh send --task demo --text-file PROMPT_FILE --contract-sha CONTRACT_SHA256 --allow-model --wait 60
-codex-dsh status --task demo
-codex-dsh follow --task demo --wait 60
-codex-dsh resume --task demo
+codex-dsh send --task demo --text-file PROMPT_FILE --contract-sha CONTRACT_SHA256 --allow-model --wait 60 --view summary --request latest
+codex-dsh follow --task demo --wait 60 --view summary --request latest
+codex-dsh resume --task demo --view summary --request latest
 codex-dsh stop --task demo
 ```
 
@@ -56,6 +55,8 @@ start 默认创建任务专属原生会话；附加已有会话使用共享停�
 附加、恢复和发送前校验原生header里的真实cwd与任务绑定目录。目录缺失、不可解析或身份不同会拒绝，旧账本也要重核；控制器需能访问同一文件系统目录。路径核验不是写入沙箱，不限制显式合同允许的独立实施树，也不能代替Git基线和允许文件核对。内部或未知原生错误即使返回错误帧，也不会被当成“肯定没执行”；安全diagnostic帮助判断，未知提交仍禁止自动重投。
 
 同一任务默认持续同一 DSH 会话；换 Codex 聊天后说“继续任务 TASK_ID，沿用原账本和会话，先恢复核对”。指定会话若已绑定，查出原 task 后执行 `resume/status`，不要再 start；仅未绑定时才用 `start --session SESSION_ID`，控制器不会自动查找并复用旧 task。`--state-dir` 不是项目目录。`workspace` 可列出或注册原生工作区，`start --workspace` 只为新建会话指定工作区；旧 session 不会迁移。目录、权限与真实 Git 须先核对，流程见 [Codex 手册](docs/manuals/codex-guide.md#resume-session)。
+
+上面是各操作示例，不是每轮顺序执行的脚本。正常运行继续follow；断线或换聊天才resume。仅需单次查询时可用status --view summary --request latest，不紧接着成功resume再例行重复status；后续观察携带cursor/generation，见[减少重复读取与等待输出](docs/manuals/efficient-collaboration.md)。stop仅在需要停止时调用。
 
 协作工具仓库与目标项目是两个独立 Git 仓库；改动、验收、提交和推送分别核对各自的 Git 根、分支与授权。一个仓库的提交不能代表另一个仓库已交付。具体以 Codex 负责 Git 的合同为准。
 
@@ -70,6 +71,7 @@ start 默认创建任务专属原生会话；附加已有会话使用共享停�
 - [用户手册](docs/manuals/user-guide.md)：日常协作、费用、停止和故障处理。
 - [Codex 手册](docs/manuals/codex-guide.md)：命令、状态、审批和循环决策。
 - [合同与证据手册](docs/manuals/contracts.md)：合同 JSON、修订、测试职责、readiness 与回执复用。
+- [减少重复读取与等待输出](docs/manuals/efficient-collaboration.md)：常规增量等待、材料复用、必要复核及量化边界。
 - [流程图与技术说明](docs/architecture.md) · [Mermaid 源文件](docs/architecture.mmd)。
 - [协作 Skill](.agents/skills/codex-dsh-collab/SKILL.md) · [验证范围](docs/validation.md)。
 - [待办与迭代方向](docs/validation.md#known-issues)：后续真实工程验收、必要缺陷修复和未验证边界；额度自动接管方向已取消。
