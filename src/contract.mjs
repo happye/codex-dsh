@@ -34,7 +34,7 @@ async function writeNew(store, name, bytes) {
   try { await handle.writeFile(bytes); await handle.sync(); } finally { await handle.close(); }
   return { file: name, bytes: Buffer.byteLength(bytes), sha256: digest(bytes) };
 }
-async function readAsset(store, ref) {
+export async function readAsset(store, ref) {
   requireValue(ref && typeof ref.file === 'string' && /^[a-f0-9]{64}$/.test(ref.sha256), 'INVALID_ASSET_REF');
   const target = store.file(ref.file); await noLinks(target);
   const bytes = await fs.readFile(target);

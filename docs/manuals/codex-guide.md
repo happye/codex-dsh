@@ -22,6 +22,8 @@
 
 在工具仓库使用node bin/codex-dsh.mjs，或通过配置toolRoot定位bin，或用已安装的codex-dsh。setup后自动复用个人stateDir；显式--state-dir优先，用于旧任务或隔离测试。无配置时保留旧版当前目录.codex-dsh的兼容行为。完整参数以--help为准。
 
+0.1.4所有命令可选--output-budget-bytes，常规建议16384；缺省/0兼容原结构，超限则为dsh-output/v1，先读summary及关键错误/审批/停止，再核artifactRef与omitted入口。projectionFailed非零退出后恢复核对，不因格式化失败重发已执行的命令。详见[输出预算手册](output-budget.md)。
+
 | 命令 | 用途 |
 | --- | --- |
 | setup --url URL [--name native] [--token-stdin 或 --token-file FILE] | 安装原样个人Skill，自动生成非秘密定位配置和私有账本；首次鉴权或更新失效凭证 |

@@ -2,7 +2,7 @@
 
 让当前 Codex 对话通过原生接口发送任务、接收结果、检查状态，再安排下一轮。DSH 继续使用完整原生 Harness；控制器不提供模型代理、不重新实现工具执行器。
 
-版本：0.1.3。提供原生工作区、版本化任务合同、执行证据回执、增量观察与原生用量导出；已观察外部参与时采用保守共享停止，避免取消其他客户端的轮次。验收结果与限制以[验证范围](docs/validation.md)为准。
+版本：0.1.4。提供原生工作区、版本化任务合同、执行证据回执、增量观察与原生用量导出；新增可选输出预算，超限保留完整私有原件、显式省略索引与关键状态，并聚合已捕获日志。已观察外部参与时采用保守共享停止。验收结果与限制以[验证范围](docs/validation.md)为准。
 
 ## 一句话开始
 
@@ -72,6 +72,7 @@ start 默认创建任务专属原生会话；附加已有会话使用共享停�
 - [Codex 手册](docs/manuals/codex-guide.md)：命令、状态、审批和循环决策。
 - [合同与证据手册](docs/manuals/contracts.md)：合同 JSON、修订、测试职责、readiness 与回执复用。
 - [减少重复读取与等待输出](docs/manuals/efficient-collaboration.md)：常规增量等待、材料复用、必要复核及量化边界。
+- [输出预算与完整原件](docs/manuals/output-budget.md)：0.1.4超限封装、日志分组和输出失败恢复。
 - [流程图与技术说明](docs/architecture.md) · [Mermaid 源文件](docs/architecture.mmd)。
 - [协作 Skill](.agents/skills/codex-dsh-collab/SKILL.md) · [验证范围](docs/validation.md)。
 - [待办与迭代方向](docs/validation.md#known-issues)：后续真实工程验收、必要缺陷修复和未验证边界；额度自动接管方向已取消。

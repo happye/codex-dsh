@@ -56,6 +56,8 @@ src/execution.mjs 以 shell:false 运行计划，持久化执行意图、原始�
 
 ## 增量投影与用量
 
+src/output.mjs在CLI最终JSON写出前提供可选字节预算。超限保存完整私有JSON，返回dsh-output/v1投影、原件/hash及省略索引；审批、停止和未知请求等必要字段可超软限保留。run/receipt日志经原有readAsset核字节后分组，不返回正文。输出层失败保留关键故障帧并非零退出，不改变原生派发、权限或业务回执；缺省/0仍是原结构。详见[输出预算](manuals/output-budget.md)。
+
 src/view.mjs 生成默认最新请求的 summary，generation 覆盖 cursor 外的停止/审批/错误变化；结果引用保留 hash/字节数，完整答复仍在私有资产。listen 输出 JSONL，单 watcher 持有有效审批 lease，最长 60 秒，退出输出 leaseOpen=false；另一 CLI 提交审批。监听程序不是永久模型主控。
 
 src/usage.mjs 输出 dsh-usage/v1，保留单一原生 session 内任务请求关联、末次采样、缺失与冲突；不输出消息正文。不明计数不补零，总输入为非缓存+缓存读+缓存写，缓存读比例以总输入为分母。它不提供 Codex 端用量或双方总费用/节省结论。

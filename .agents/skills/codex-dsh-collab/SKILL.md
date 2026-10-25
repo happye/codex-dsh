@@ -13,7 +13,9 @@ description: 通过本工具的原生 DSH 控制器启动、继续、查看和�
 
 工程实施先读docs/manuals/contracts.md，由Codex生成并绑定版本化合同（允许/保护文件、Git基线、完整要求、测试职责和授权引用），不是让用户填写JSON，再send --contract-sha 当前hash。首次全文、后续引用加本轮增量；压缩或不明时重读资产。要求删改必须逐项授权修订；run/receipt/readiness和runtimeInputs等证据规则按合同手册执行，未知执行不重跑。授权真实模型调用不自动授权Git提交、推送或部署，这些按项目既有授权处理。
 
-循环：在任务/费用授权内send --allow-model → follow/listen观察匹配请求 → 读取完整resultFile及实际文件/diff/测试验收 → 新请求追修。常规send/follow使用--wait 60 --view summary --request latest，保存返回cursor/generation，后续观察带--since-cursor/--since-generation；已有watcher不叠加status/follow。非终态超时继续有界等待，不用短轮询催进度；实时审批才用listen，窗口结束重开以恢复有效lease。具体例子及例外见docs/manuals/efficient-collaboration.md。
+循环：在任务/费用授权内send --allow-model → follow/listen观察匹配请求 → 读取完整resultFile及实际文件/diff/测试验收 → 新请求追修。常规send/follow使用--wait 60 --view summary --request latest --output-budget-bytes 16384，保存返回cursor/generation，后续观察带--since-cursor/--since-generation；已有watcher不叠加status/follow。非终态超时继续有界等待，不用短轮询催进度；实时审批才用listen，窗口结束重开以恢复有效lease。具体例子及例外见docs/manuals/efficient-collaboration.md。
+
+0.1.4预算仅限制CLI投影：超限dsh-output/v1读summary并按artifactRef/hash与omitted索引取完整原件；审批/停止等必要字段可超软限保留。projectionFailed时核原任务/回执和副作用，不重投、不接收为通过。大run/receipt错误组只有分类/计数/行号，不能代替原始证据或把TimeoutError类别当已证根因。最终新答复仍读完整resultFile；规则见docs/manuals/output-budget.md。业务taskIds/scopeRevision及进度前后证据可用既有requirements文本引用，不伪造新CLI字段。
 
 同会话已读手册、合同和稳定材料按路径/hash复用；版本、内容、要求变化或压缩后缺少内容时，定向重读，不以缓存绕过目录/权限/合同和实时停止检查。RUNNING中的resultFile不反复全文读取；终态按requestId/resultSha256读取新答复一次，检查实际diff/证据，不同请求或同路径hash变化须重读。审批、错误/停止变化、用户要求的中间结果不能因去重丢失；changed=false仅表示该投影没变化，不代表任务闲置、完成或已停净。cursor/generation变化也不必然值得读取完整材料。
 

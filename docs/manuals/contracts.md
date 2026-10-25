@@ -4,6 +4,8 @@
 
 合同由Codex根据用户目标和项目规则生成；用户不必手写下方JSON。绑定前executionRoot必须正好是Git根且已有初始提交HEAD。新项目先在授权初始化范围内建立最小基线；已有项目可带未提交/未跟踪改动，不为接入而清理或擅自提交。
 
+0.1.4可给contract/run/receipt/readiness追加--output-budget-bytes 16384，超限时读结构化摘要及完整原件索引，不能把投影当全部证据。原件核验失败、projectionFailed或证据未知时不接收为通过；详见[输出预算](output-budget.md)。业务taskIds/scopeRevision和进度前后证据可在既有requirements文本中引用，不是新增参数或自动放宽范围的依据。
+
 ## 首次绑定与派发
 
 先 start 或恢复同一 task，核原生 cwd、Git 根、HEAD、分支、现有修改和费用授权。nativeCwd 是任务绑定目录；executionRoot 是获准实施的 Git 根，可以是独立工作树。两者分别核验。协作工具与业务项目各自管理 Git；gitOwner 固定 Codex，DSH 保留他人编辑，不自行提交/合并/发布。

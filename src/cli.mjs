@@ -6,6 +6,7 @@ import { Controller } from './controller.mjs';
 import { setup, connections, resolveStateDirectory, connectionOrigin } from './setup.mjs';
 import { safeDiagnostic } from './native.mjs';
 import { taskView } from './view.mjs';
+import { budgetOutput, outputFailure, validateOutputBudget } from './output.mjs';
 
 const help = `codex-dsh: native DSH thin controller (JSON output)
   setup --url URL [--name NAME] [--state-dir ABSOLUTE] [--token-stdin | --token-file FILE]
@@ -27,6 +28,8 @@ const help = `codex-dsh: native DSH thin controller (JSON output)
   status|resume|follow|send [--view summary] [--request latest|REQUEST_ID] [--since-cursor N] [--since-generation SHA256]
   approve --task ID --approval EVENT_ID --decision allowed-once|rejected
 All commands: --state-dir DIR (explicit > personal Skill profile > cwd/.codex-dsh)
+  --output-budget-bytes N (0 disables; 1024..1048576, opt-in stdout projection only)
+  Oversized JSON is preserved in a private artifact; required signals may exceed the budget.
 setup installs the repository Skill unchanged into CODEX_HOME/skills/codex-dsh-collab.
 Without a token setup only configures locally; stored authentication is not a live check.
 Exit codes: 0 success/status, 2 invalid usage, 3 state/conflict, 4 native/transport error.
@@ -59,11 +62,25 @@ export async function runCli(argv, { stdout = process.stdout, stderr = process.s
       const flag = argv[i];
       if (!flag.startsWith('--')) throw fault('USAGE');
       const key = flag.slice(2);
-      if (![...allowed, 'state-dir'].includes(key) || key in options) throw fault('USAGE', 'Unknown or duplicate option');
+      if (![...allowed, 'state-dir', 'output-budget-bytes'].includes(key) || key in options) throw fault('USAGE', 'Unknown or duplicate option');
       if (['token-stdin', 'allow-model', 'active'].includes(key)) options[key] = true;
       else { const value = argv[++i]; if (!value || value.startsWith('--')) throw fault('USAGE', 'Missing option value'); options[key] = value; }
     }
     for (const name of required[command]) if (!options[name]) throw fault('USAGE', `Missing --${name}`);
+    const budgetBytes = validateOutputBudget(options['output-budget-bytes']);
+    const emit = async (value, store) => {
+      let visible;
+      try {
+        visible = await budgetOutput(value, { store, budgetBytes, command, readLog: async ref => {
+          const { readAsset } = await import('./contract.mjs');
+          return readAsset(store, ref);
+        } });
+      } catch (error) {
+        stdout.write(`${JSON.stringify(outputFailure(value, { command, budgetBytes, error }))}\n`);
+        throw error;
+      }
+      stdout.write(`${JSON.stringify(visible)}\n`);
+    };
     if (command === 'recover' && (Boolean(options.task) === Boolean(options.connection) || (options.task && ['cwd', 'title', 'active'].some(key => key in options)))) throw fault('USAGE', 'recover requires a task or connection selectors');
     const wait = options.wait === undefined ? undefined : Number(options.wait);
     if (wait !== undefined && (!Number.isFinite(wait) || wait < 0)) throw fault('USAGE', '--wait must be nonnegative seconds');
@@ -80,11 +97,12 @@ export async function runCli(argv, { stdout = process.stdout, stderr = process.s
     if (options['token-file']) token = (await fs.readFile(path.resolve(cwd, options['token-file']), 'utf8')).trim();
     if ((options['token-stdin'] || options['token-file']) && !token) throw fault('EMPTY_INPUT');
     if (command === 'setup') {
-      stdout.write(`${JSON.stringify(await setup(options, { codexHome, token }))}\n`);
+      const value = await setup(options, { codexHome, token });
+      await emit(value, budgetBytes ? await StateStore.open(value.stateDir) : undefined);
       return 0;
     }
     const store = await StateStore.open(await resolveStateDirectory(options['state-dir'], { cwd, codexHome }));
-    if (command === 'connections') { stdout.write(`${JSON.stringify(await connections(store))}\n`); return 0; }
+    if (command === 'connections') { await emit(await connections(store), store); return 0; }
     const controller = new Controller({ store });
     if (['contract','run','receipt','readiness'].includes(command)) {
       const { ContractService } = await import('./contract.mjs');
@@ -96,11 +114,11 @@ export async function runCli(argv, { stdout = process.stdout, stderr = process.s
       if (command === 'run') value = await service.run({task:options.task,contractSha:options['contract-sha'],case:options.case,owner:options.owner,rerunReason:options['rerun-reason']});
       if (command === 'receipt') value = await service.receipt({task:options.task,run:options.run});
       if (command === 'readiness') value = await service.readiness({task:options.task,contractSha:options['contract-sha'],review:JSON.parse(await fs.readFile(path.resolve(cwd,options['review-file']),'utf8'))});
-      stdout.write(`${JSON.stringify(value)}\n`); return 0;
+      await emit(value, store); return 0;
     }
     let args = { ...options, ...(wait === undefined ? {} : { wait }) };
     if (command === 'listen') {
-      await controller.listen({ ...args, ...viewOptions, onUpdate: value => stdout.write(`${JSON.stringify(value)}\n`) });
+      await controller.listen({ ...args, ...viewOptions, onUpdate: value => emit(value, store) });
       return 0;
     }
     if (command === 'attach') args.token = token;
@@ -114,7 +132,7 @@ export async function runCli(argv, { stdout = process.stdout, stderr = process.s
     }
     let result = await controller[command](args);
     if (options.view === 'summary' || options.request !== undefined || options['since-cursor'] !== undefined || options['since-generation'] !== undefined) result = taskView(result, await store.task(options.task), viewOptions);
-    stdout.write(`${JSON.stringify(result)}\n`);
+    await emit(result, store);
     return 0;
   } catch (error) {
     // Native/provider errors can echo request bodies or auth URLs: never print them.

@@ -1,6 +1,6 @@
 {
   "name": "codex-dsh",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Thin native DeepSeek Harness control plane for Codex-led collaboration",
   "type": "module",
   "license": "UNLICENSED",
